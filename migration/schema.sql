@@ -1,3 +1,5 @@
+USE specialweek;
+
 CREATE TABLE IF NOT EXISTS `Profil` (
 	`id` int AUTO_INCREMENT NOT NULL UNIQUE,
 	`Prénom` varchar(50) NOT NULL,

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.577.0",
+    "react-router-dom": "^7.13.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.183.1"
+  }
+}

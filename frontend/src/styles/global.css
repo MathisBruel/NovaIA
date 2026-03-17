@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+#initial-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+  z-index: 9999;
+}
+
+.initial-loader-orbit {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.initial-loader-planet {
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #f9a8d4, #4f46e5);
+  box-shadow: 0 0 25px rgba(129, 140, 248, 0.9);
+}
+
+.initial-loader-ship {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: conic-gradient(from 180deg, #22c55e, #06b6d4, #22c55e);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+  transform-origin: -50px center;
+  animation: initial-orbit 1.4s linear infinite;
+}
+
+.initial-loader-text {
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
+
+@keyframes initial-orbit {
+  0% {
+    transform: rotate(0deg) translateX(50px);
+  }
+  100% {
+    transform: rotate(360deg) translateX(50px);
+  }
+}
