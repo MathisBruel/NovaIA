@@ -1,0 +1,44 @@
+name: Déploiement sur VPS Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Déployer sur le VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Déploiement via SSH sur le VPS
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+
+            # Aller dans le dossier d'installation
+            cd /opt/novaia
+
+            # Si le dépôt n'existe pas encore, le cloner
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }} . 
+            else
+              git fetch --all
+            fi
+
+            # Se placer sur la bonne branche et récupérer la dernière version
+            git checkout main
+            git reset --hard origin/main
+
+            # Construire et (re)lancer les conteneurs
+            docker compose pull
+            docker compose up -d --build --remove-orphans
+

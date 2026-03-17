@@ -65,6 +65,15 @@ function SumSumModel({
 
   const [introDone, setIntroDone] = useState(mode !== "intro");
 
+  // Réinitialiser proprement la position/orientation quand on revient en mode "intro"
+  useEffect(() => {
+    if (mode === "intro" && groupRef.current) {
+      setIntroDone(false);
+      groupRef.current.position.set(0, 0, -60);
+      groupRef.current.rotation.set(0, FACE_CAMERA_ROT_Y, 0);
+    }
+  }, [mode]);
+
   useEffect(() => {
     if (obj && groupRef.current) {
       obj.scale.set(1.5, 1.5, 1.5);
@@ -90,7 +99,8 @@ function SumSumModel({
       const currentZ = groupRef.current.position.z;
       const smoothZ = THREE.MathUtils.damp(currentZ, targetZ, 2.5, delta);
       groupRef.current.position.z = smoothZ;
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 3) * 0.15;
+      groupRef.current.position.x = 0; // éviter tout décalage horizontal parasite
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.15;
 
       // rester constamment orienté vers la caméra
       groupRef.current.rotation.y = FACE_CAMERA_ROT_Y;
@@ -282,146 +292,194 @@ function Home() {
   };
 
   return (
-    <div className="w-full h-screen bg-black overflow-hidden relative font-sans text-white">
-      <div
-        className={`absolute inset-0 bg-gradient-to-t ${
-          mode === "hub" ? currentZone.colorTheme : "from-sky-500/20 to-transparent"
-        } transition-colors duration-1000 z-0 opacity-40`}
-      />
-      <div className="absolute inset-0 z-10">
-        <Canvas
-          camera={mode === "intro" ? { position: [0, 2, 10], fov: 55 } : { position: [0, 4, 12], fov: 50 }}
+    <div className="w-full min-h-screen bg-black font-sans text-white flex flex-col">
+      {/* Section hero 3D pleine hauteur */}
+      <section className="relative w-full h-screen overflow-hidden">
+        <div
+          className={`absolute inset-0 bg-gradient-to-t ${
+            mode === "hub" ? currentZone.colorTheme : "from-sky-500/20 to-transparent"
+          } transition-colors duration-1000 z-0 opacity-40`}
+        />
+        <div
+          className={`absolute inset-0 z-10 ${
+            mode === "intro" ? "pointer-events-none" : ""
+          }`}
         >
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
+          <Canvas
+            camera={mode === "intro" ? { position: [0, 2, 10], fov: 55 } : { position: [0, 4, 12], fov: 50 }}
+          >
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[10, 10, 5]} intensity={1} />
 
-          <Sky
-            distance={450000}
-            sunPosition={[0, -1, 0]}
-            inclination={0}
-            azimuth={0.25}
-            turbidity={10}
-            rayleigh={0.1}
-          />
-          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-
-          <Suspense fallback={<Loader />}>
-            <SumSumModel
-              warpTriggered={mode === "hub" ? warpTriggered : false}
-              targetRotation={mode === "hub" ? currentZone.angle : 0}
-              onWarpComplete={handleWarpComplete}
-              warpTarget={mode === "hub" ? currentZonePosition : undefined}
-              mode={mode}
+            <Sky
+              distance={450000}
+              sunPosition={[0, -1, 0]}
+              inclination={0}
+              azimuth={0.25}
+              turbidity={10}
+              rayleigh={0.1}
             />
-            {mode === "hub" && <ZoneMarkers selectedZoneId={currentZone.id} />}
-          </Suspense>
-        </Canvas>
-      </div>
+            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
 
-      {mode === "intro" && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-end pb-16 pointer-events-none">
-          <button
-            className={`pointer-events-auto px-12 py-4 rounded-full bg-gradient-to-r from-blue-500 to-[#00ffcc] text-black text-2xl font-black uppercase tracking-[0.25em] shadow-[0_0_30px_rgba(0,255,204,0.6)] border-4 border-white/60 transition-all ${
-              introReady ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" : "opacity-0 translate-y-6"
-            }`}
-            disabled={!introReady}
-            onClick={() => setMode("hub")}
-          >
-            Start
-          </button>
+            <Suspense fallback={<Loader />}>
+              <SumSumModel
+                warpTriggered={mode === "hub" ? warpTriggered : false}
+                targetRotation={mode === "hub" ? currentZone.angle : 0}
+                onWarpComplete={handleWarpComplete}
+                warpTarget={mode === "hub" ? currentZonePosition : undefined}
+                mode={mode}
+              />
+              {mode === "hub" && <ZoneMarkers selectedZoneId={currentZone.id} />}
+            </Suspense>
+          </Canvas>
         </div>
-      )}
 
-      {mode === "hub" && (
-        <>
-          {/* UI Top Info */}
-          <div
-            className={`absolute top-8 left-0 right-0 z-20 flex justify-center pointer-events-none transition-opacity duration-500 ${
-              warpTriggered ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            <div className="bg-black/30 backdrop-blur-xl px-8 py-3 rounded-full border border-white/10 flex flex-col items-center shadow-[0_0_25px_rgba(15,23,42,0.9)]">
-              <h2 className="text-[11px] uppercase tracking-[0.35em] text-slate-300 mb-1">Destination</h2>
-              <h1
-                className={`text-3xl font-extrabold uppercase tracking-[0.18em] ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
-              >
-                {currentZone.name}
-              </h1>
-            </div>
+        {mode === "intro" && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-end pb-16 pointer-events-none">
+            <button
+              className={`pointer-events-auto px-12 py-4 rounded-full bg-gradient-to-r from-blue-500 to-[#00ffcc] text-black text-2xl font-black uppercase tracking-[0.25em] shadow-[0_0_30px_rgba(0,255,204,0.6)] border-4 border-white/60 transition-all ${
+                introReady ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" : "opacity-0 translate-y-6"
+              }`}
+              disabled={!introReady}
+              onClick={() => setMode("hub")}
+            >
+              Start
+            </button>
           </div>
+        )}
 
-          {/* UI Bottom Controls */}
-          <div
-            className={`fixed bottom-0 pb-8 left-0 right-0 z-30 flex justify-between items-end px-12 transition-opacity duration-500 ${
-              warpTriggered ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            {/* Touch / Click Controls */}
-            <div className="flex gap-4 items-end">
-              <button
-                className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
-                  selectedZoneIndex === 0
-                    ? "opacity-30 cursor-not-allowed"
-                    : "hover:bg-white/20 hover:border-white/50 active:scale-95"
-                }`}
-                onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
-                disabled={selectedZoneIndex === 0 || warpTriggered}
-              >
-                <ArrowLeft size={32} />
-              </button>
-
-              <button
-                className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
-                  selectedZoneIndex === ZONES.length - 1
-                    ? "opacity-30 cursor-not-allowed"
-                    : "hover:bg-white/20 hover:border-white/50 active:scale-95"
-                }`}
-                onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
-                disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
-              >
-                <ArrowRight size={32} />
-              </button>
-
-              <button
-                className="ml-6 px-10 py-5 h-[76px] rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 text-slate-950 font-extrabold uppercase tracking-[0.25em] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_35px_rgba(56,189,248,0.8)] flex items-center gap-3 border border-white/40"
-                onClick={triggerWarp}
-                disabled={warpTriggered}
-              >
-                Go <ArrowRight size={20} className="text-slate-950" />
-              </button>
+        {mode === "hub" && (
+          <>
+            {/* UI Top Info */}
+            <div
+              className={`absolute top-8 left-0 right-0 z-20 flex justify-center pointer-events-none transition-opacity duration-500 ${
+                warpTriggered ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              <div className="bg-black/30 backdrop-blur-xl px-8 py-3 rounded-full border border-white/10 flex flex-col items-center shadow-[0_0_25px_rgba(15,23,42,0.9)]">
+                <h2 className="text-[11px] uppercase tracking-[0.35em] text-slate-300 mb-1">Destination</h2>
+                <h1
+                  className={`text-3xl font-extrabold uppercase tracking-[0.18em] ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
+                >
+                  {currentZone.name}
+                </h1>
+              </div>
             </div>
 
-            {/* Keyboard Hints */}
-            <div className="hidden md:flex flex-col items-end gap-3 opacity-60 pointer-events-none">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium uppercase tracking-wider text-white">Naviguer</span>
-                <div className="flex gap-1">
-                  <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                    Q
-                  </kbd>
-                  <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                    D
-                  </kbd>
+            {/* UI Bottom Controls */}
+            <div
+              className={`absolute bottom-0 pb-8 left-0 right-0 z-30 flex justify-between items-end px-12 transition-opacity duration-500 ${
+                warpTriggered ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              {/* Touch / Click Controls */}
+              <div className="flex gap-4 items-end">
+                <button
+                  className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
+                    selectedZoneIndex === 0
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:bg-white/20 hover:border-white/50 active:scale-95"
+                  }`}
+                  onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
+                  disabled={selectedZoneIndex === 0 || warpTriggered}
+                >
+                  <ArrowLeft size={32} />
+                </button>
+
+                <button
+                  className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
+                    selectedZoneIndex === ZONES.length - 1
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:bg-white/20 hover:border-white/50 active:scale-95"
+                  }`}
+                  onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
+                  disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
+                >
+                  <ArrowRight size={32} />
+                </button>
+
+                <button
+                  className="ml-6 px-10 py-5 h-[76px] rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 text-slate-950 font-extrabold uppercase tracking-[0.25em] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_35px_rgba(56,189,248,0.8)] flex items-center gap-3 border border-white/40"
+                  onClick={triggerWarp}
+                  disabled={warpTriggered}
+                >
+                  Go <ArrowRight size={20} className="text-slate-950" />
+                </button>
+              </div>
+
+              {/* Keyboard Hints */}
+              <div className="hidden md:flex flex-col items-end gap-3 opacity-60 pointer-events-none">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium uppercase tracking-wider text-white">Naviguer</span>
+                  <div className="flex gap-1">
+                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
+                      Q
+                    </kbd>
+                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
+                      D
+                    </kbd>
+                  </div>
+                  <span className="text-gray-400 mx-1">ou</span>
+                  <div className="flex gap-1">
+                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
+                      <ArrowLeft size={20} />
+                    </kbd>
+                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
+                      <ArrowRight size={20} />
+                    </kbd>
+                  </div>
                 </div>
-                <span className="text-gray-400 mx-1">ou</span>
-                <div className="flex gap-1">
-                  <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                    <ArrowLeft size={20} />
-                  </kbd>
-                  <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                    <ArrowRight size={20} />
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium uppercase tracking-wider text-white">Valider</span>
+                  <kbd className="px-4 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-sm uppercase shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
+                    Entrée
                   </kbd>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium uppercase tracking-wider text-white">Valider</span>
-                <kbd className="px-4 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-sm uppercase shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                  Entrée
-                </kbd>
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* Section site classique en dessous (uniquement en mode intro) */}
+      {mode === "intro" && (
+        <section className="w-full flex-1 bg-slate-950 text-slate-100">
+          <div className="max-w-5xl mx-auto px-6 py-16 space-y-12">
+            <header>
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">
+                Bienvenue dans l’univers SumSum
+              </h2>
+              <p className="text-slate-300 text-base md:text-lg max-w-2xl">
+                Retrouvez ici la partie “site classique” : présentation du projet,
+                explications des jeux, liens utiles et informations pratiques.
+              </p>
+            </header>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="bg-slate-900/60 border border-slate-700 rounded-2xl p-6">
+                <h3 className="text-lg font-semibold mb-2">Jeux disponibles</h3>
+                <p className="text-sm text-slate-300">
+                  Une sélection de jeux pour sensibiliser, apprendre et s’amuser autour
+                  des thématiques de la Special Week.
+                </p>
+              </div>
+              <div className="bg-slate-900/60 border border-slate-700 rounded-2xl p-6">
+                <h3 className="text-lg font-semibold mb-2">Comment jouer ?</h3>
+                <p className="text-sm text-slate-300">
+                  Depuis le hub 3D, choisissez une destination, puis laissez SumSum vous
+                  téléporter vers le jeu correspondant.
+                </p>
+              </div>
+              <div className="bg-slate-900/60 border border-slate-700 rounded-2xl p-6">
+                <h3 className="text-lg font-semibold mb-2">Points & gamification</h3>
+                <p className="text-sm text-slate-300">
+                  Chaque activité complétée vous fait gagner des points. Consultez le
+                  back-office pour suivre la progression des participants.
+                </p>
               </div>
             </div>
           </div>
-        </>
+        </section>
       )}
     </div>
   );
