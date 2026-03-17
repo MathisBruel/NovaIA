@@ -10,6 +10,7 @@
 - Java 17+
 - Gradle (ou wrapper `gradlew`)
 - Node.js (version LTS recommandée)
+- Docker (si utilisation des conteneurs)
 
 ## Démarrer le backend
 
@@ -31,4 +32,15 @@ npm run dev
 Le front est alors disponible sur `http://localhost:5173`.
 
 Les appels à `/api/...` sont automatiquement proxifiés vers le backend (`http://localhost:8080`) via la configuration Vite.
+
+## Lancer l'application avec Docker
+
+À la racine du projet :
+
+```bash
+docker compose up --build
+```
+
+- Backend : `http://localhost:8080` (`GET /api/health`)
+- Frontend : `http://localhost:5173`
 
