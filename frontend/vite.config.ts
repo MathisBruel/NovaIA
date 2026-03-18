@@ -6,6 +6,7 @@ export default defineConfig({
   assetsInclude: ["**/*.JPEG", "**/*.obj", "**/*.mtl"],
   server: {
     port: 5173,
+    allowedHosts: ["novaia.mathisbruel.fr"],
     proxy: {
       "/api": {
         target: "http://localhost:8080",
