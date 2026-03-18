@@ -23,7 +23,7 @@ public class JeuChasseAnomalies {
     @Column(name = "titre_image", nullable = false, length = 255)
     private String titreImage;
 
-    @Column(name = "coordonnes_anomalie_json", nullable = false, columnDefinition = "json")
+    @Column(name = "coordonnes_anomalie_json", nullable = false)
     private String coordonnesAnomalieJson;
 
     @Column(name = "explication", nullable = false, length = 255)
