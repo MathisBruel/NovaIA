@@ -8,26 +8,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Profil")
+@Table(name = "profil")
 public class Profil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "Prénom", nullable = false, length = 50)
+    @Column(name = "prenom", nullable = false, length = 50)
     private String prenom;
 
-    @Column(name = "Nom", nullable = false, length = 50)
+    @Column(name = "nom", nullable = false, length = 50)
     private String nom;
 
     @Column(name = "mail", nullable = false, length = 100, unique = true)
     private String mail;
 
-    @Column(name = "Mdp", nullable = false, length = 50)
+    @Column(name = "mdp", nullable = false, length = 50)
     private String motDePasse;
 
-    @Column(name = "Points", nullable = false)
+    @Column(name = "points", nullable = false)
     private Integer points;
 
     public Integer getId() {

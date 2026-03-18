@@ -205,7 +205,7 @@ INSERT INTO Jeu_quizz (type_question, media_url, option_a, option_b, option_c, o
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, FALSE, 'Internet rend la vérification des infos plus facile.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, TRUE, 'Une image modifiée peut sembler complètement authentique.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, FALSE, 'Tous les fact-checkers sont équivalents en qualité.', 10),
-(2, NULL, 'Vrai', 'Faux', NULL, NULL, TRUE, 'Les jeunes natifs digitaux ont toujours pensée critique.', 10is FALSE, 'Croissance digitale ne = pensée critique automatique.', FALSE),
+(2, NULL, 'Vrai', 'Faux', NULL, NULL, FALSE, 'Les jeunes natifs digitaux ont toujours pensée critique.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, FALSE, 'Seuls les citoyens ignorants bois la désinformation.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, TRUE, 'La transparence peut augmenter confiance dans systèmes.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, FALSE, 'Un lien dans une news le rend automatiquement credible.', 10),

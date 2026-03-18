@@ -1,11 +1,12 @@
-import React, { Suspense, useState, useRef, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
+import React, { Suspense, useState, useRef, useEffect, useContext, createContext } from "react";
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, useProgress, Sky, Stars } from "@react-three/drei";
+import { motion, AnimatePresence } from "framer-motion";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import * as THREE from "three";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
 
 // --- Loader ---
 function Loader() {
@@ -242,6 +243,381 @@ function ZoneMarkers({ selectedZoneId }: { selectedZoneId: number }) {
   );
 }
 
+type Profil = {
+  id?: number;
+  prenom: string;
+  nom: string;
+  mail: string;
+  motDePasse: string;
+  points: number;
+};
+
+const API_BASE_URL: string =
+  (import.meta as any).env?.VITE_API_BASE_URL && (import.meta as any).env.VITE_API_BASE_URL.length > 0
+    ? (import.meta as any).env.VITE_API_BASE_URL
+    : "";
+
+type AuthContextValue = {
+  user: Profil | null;
+  login: (profil: Profil) => void;
+  logout: () => void;
+};
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return ctx;
+}
+
+function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<Profil | null>(null);
+
+  useEffect(() => {
+    const raw = window.localStorage.getItem("specialweek_user");
+    if (raw) {
+      try {
+        setUser(JSON.parse(raw));
+      } catch {
+        window.localStorage.removeItem("specialweek_user");
+      }
+    }
+  }, []);
+
+  const login = (profil: Profil) => {
+    setUser(profil);
+    window.localStorage.setItem("specialweek_user", JSON.stringify(profil));
+  };
+
+  const logout = () => {
+    setUser(null);
+    window.localStorage.removeItem("specialweek_user");
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+function AccountsSection() {
+  const [profils, setProfils] = useState<Profil[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Profil | null>(null);
+  const [form, setForm] = useState<Profil>({
+    prenom: "",
+    nom: "",
+    mail: "",
+    motDePasse: "",
+    points: 0,
+  });
+  const [pointsDelta, setPointsDelta] = useState(0);
+
+  const loadProfils = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE_URL}/api/accounts`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des comptes");
+      const data = await res.json();
+      setProfils(data);
+    } catch (e: any) {
+      setError(e.message ?? "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProfils();
+  }, []);
+
+  const handleChange = (field: keyof Profil, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: field === "points" ? Number(value) || 0 : value,
+    }));
+  };
+
+  const resetForm = () => {
+    setEditing(null);
+    setForm({
+      prenom: "",
+      nom: "",
+      mail: "",
+      motDePasse: "",
+      points: 0,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError(null);
+      const method = editing?.id ? "PUT" : "POST";
+      const url = editing?.id
+        ? `${API_BASE_URL}/api/accounts/${editing.id}`
+        : `${API_BASE_URL}/api/accounts`;
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Erreur lors de l'enregistrement du compte");
+      resetForm();
+      await loadProfils();
+    } catch (e: any) {
+      setError(e.message ?? "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (profil: Profil) => {
+    setEditing(profil);
+    setForm({
+      prenom: profil.prenom,
+      nom: profil.nom,
+      mail: profil.mail,
+      motDePasse: profil.motDePasse || "",
+      points: profil.points ?? 0,
+    });
+  };
+
+  const handleDelete = async (id?: number) => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE_URL}/api/accounts/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Erreur lors de la suppression du compte");
+      if (editing?.id === id) resetForm();
+      await loadProfils();
+    } catch (e: any) {
+      setError(e.message ?? "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddPoints = async (profil: Profil) => {
+    if (!profil.id || !pointsDelta) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(
+        `${API_BASE_URL}/api/accounts/${profil.id}/add-points?delta=${pointsDelta}`,
+        {
+          method: "POST",
+        }
+      );
+      if (!res.ok) throw new Error("Erreur lors de l'ajout de points");
+      setPointsDelta(0);
+      await loadProfils();
+    } catch (e: any) {
+      setError(e.message ?? "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="w-full flex-1 relative mt-12">
+      <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-3xl rounded-3xl border border-white/10" />
+      <div className="relative max-w-6xl mx-auto px-6 py-12 space-y-10">
+        <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              Gestion des comptes
+            </h2>
+            <p className="text-slate-400 text-sm md:text-base max-w-xl leading-relaxed">
+              Crée, modifie et gère les comptes joueurs directement depuis ton espace.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={loadProfils}
+            className="self-start px-6 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-bold text-white transition-all shadow-lg backdrop-blur-md"
+          >
+            ↻ Rafraîchir
+          </button>
+        </header>
+
+        {error && (
+          <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">
+            {error}
+          </div>
+        )}
+
+        <div className="grid md:grid-cols-3 gap-8 relative z-10">
+          <form onSubmit={handleSubmit} className="md:col-span-1 bg-black/40 border border-white/10 rounded-3xl p-8 space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <h3 className="text-xl font-bold text-white mb-2">
+              {editing ? "Modifier un compte" : "Nouveau compte"}
+            </h3>
+            <div className="space-y-4 text-sm">
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-medium">Prénom</label>
+                <input
+                  required
+                  value={form.prenom}
+                  onChange={(e) => handleChange("prenom", e.target.value)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none focus:border-cyan-400 focus:bg-white/10 transition-all text-white"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-medium">Nom</label>
+                <input
+                  required
+                  value={form.nom}
+                  onChange={(e) => handleChange("nom", e.target.value)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none focus:border-cyan-400 focus:bg-white/10 transition-all text-white"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-medium">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={form.mail}
+                  onChange={(e) => handleChange("mail", e.target.value)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none focus:border-cyan-400 focus:bg-white/10 transition-all text-white"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-medium">Mot de passe</label>
+                <input
+                  type="password"
+                  required
+                  value={form.motDePasse}
+                  onChange={(e) => handleChange("motDePasse", e.target.value)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none focus:border-cyan-400 focus:bg-white/10 transition-all text-white"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-medium">Points</label>
+                <input
+                  type="number"
+                  value={form.points}
+                  onChange={(e) => handleChange("points", e.target.value)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none focus:border-cyan-400 focus:bg-white/10 transition-all text-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-4 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-colors disabled:opacity-50 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+              >
+                {editing ? "Enregistrer" : "Créer"}
+              </button>
+              {editing && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-3 py-2 rounded-lg bg-slate-800 text-slate-100 text-xs border border-slate-600"
+                >
+                  Annuler
+                </button>
+              )}
+            </div>
+          </form>
+
+          <div className="md:col-span-2 bg-black/40 border border-white/10 rounded-3xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white">Liste des comptes</h3>
+              {loading && <span className="text-xs text-cyan-400 animate-pulse font-bold tracking-widest uppercase">Chargement...</span>}
+            </div>
+            {profils.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center p-8 bg-white/5 rounded-2xl border border-white/5 border-dashed">
+                <p className="text-sm text-slate-400 text-center">
+                  Aucun compte pour le moment. Crée ton premier profil avec le formulaire.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6 flex-1 flex flex-col">
+                <div className="overflow-x-auto overflow-y-auto flex-1 max-h-[400px] pr-2 custom-scrollbar">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold border-b border-white/10">
+                        <th className="py-3 px-2">Prénom</th>
+                        <th className="py-3 px-2">Nom</th>
+                        <th className="py-3 px-2">Email</th>
+                        <th className="py-3 px-2 text-right">Points</th>
+                        <th className="py-3 px-2 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {profils.map((p) => (
+                        <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                          <td className="py-3 px-2 font-medium text-white">{p.prenom}</td>
+                          <td className="py-3 px-2 text-slate-300">{p.nom}</td>
+                          <td className="py-3 px-2 text-slate-400">{p.mail}</td>
+                          <td className="py-3 px-2 text-right font-bold text-emerald-400">{p.points}</td>
+                          <td className="py-3 px-2 text-right">
+                            <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={() => handleEdit(p)}
+                                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 transition-colors text-white"
+                              >
+                                Modifier
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(p.id)}
+                                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 transition-colors text-red-200"
+                              >
+                                Supprimer
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-white/10">
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className="text-slate-300 font-medium">Ajouter des points</span>
+                    <input
+                      type="number"
+                      value={pointsDelta || ""}
+                      onChange={(e) => setPointsDelta(Number(e.target.value) || 0)}
+                      className="w-24 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs outline-none focus:border-cyan-400 focus:bg-white/10 text-white font-bold"
+                      placeholder="+10"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {profils.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => handleAddPoints(p)}
+                        className="px-3 py-1 text-xs rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600"
+                      >
+                        Appliquer à {p.prenom}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // --- Home Page ---
 function Home() {
   const navigate = useNavigate();
@@ -292,9 +668,9 @@ function Home() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-black font-sans text-white flex flex-col">
-      {/* Section hero 3D pleine hauteur */}
-      <section className="relative w-full h-screen overflow-hidden">
+    <div className="w-full min-h-screen bg-slate-950 font-sans text-white flex flex-col">
+      {/* Hero 3D pleine hauteur */}
+      <section className="relative w-full h-[80vh] md:h-screen overflow-hidden">
         <div
           className={`absolute inset-0 bg-gradient-to-t ${
             mode === "hub" ? currentZone.colorTheme : "from-sky-500/20 to-transparent"
@@ -368,7 +744,7 @@ function Home() {
 
             {/* UI Bottom Controls */}
             <div
-              className={`absolute bottom-0 pb-8 left-0 right-0 z-30 flex justify-between items-end px-12 transition-opacity duration-500 ${
+              className={`absolute bottom-0 pb-28 md:pb-32 left-0 right-0 z-30 flex justify-between items-end px-6 md:px-12 transition-opacity duration-500 ${
                 warpTriggered ? "opacity-0" : "opacity-100"
               }`}
             >
@@ -441,46 +817,145 @@ function Home() {
         )}
       </section>
 
-      {/* Section site classique en dessous (uniquement en mode intro) */}
-      {mode === "intro" && (
-        <section className="w-full flex-1 bg-slate-950 text-slate-100">
-          <div className="max-w-5xl mx-auto px-6 py-16 space-y-12">
-            <header>
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">
-                Bienvenue dans l’univers SumSum
-              </h2>
-              <p className="text-slate-300 text-base md:text-lg max-w-2xl">
-                Retrouvez ici la partie “site classique” : présentation du projet,
-                explications des jeux, liens utiles et informations pratiques.
-              </p>
-            </header>
+      {/* Section contenu classique sous le hero */}
+      <section className="relative w-full bg-slate-950 pt-32 pb-48 overflow-hidden border-t border-white/5">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full" />
+        </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-slate-900/60 border border-slate-700 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold mb-2">Jeux disponibles</h3>
-                <p className="text-sm text-slate-300">
-                  Une sélection de jeux pour sensibiliser, apprendre et s’amuser autour
-                  des thématiques de la Special Week.
-                </p>
-              </div>
-              <div className="bg-slate-900/60 border border-slate-700 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold mb-2">Comment jouer ?</h3>
-                <p className="text-sm text-slate-300">
-                  Depuis le hub 3D, choisissez une destination, puis laissez SumSum vous
-                  téléporter vers le jeu correspondant.
-                </p>
-              </div>
-              <div className="bg-slate-900/60 border border-slate-700 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold mb-2">Points & gamification</h3>
-                <p className="text-sm text-slate-300">
-                  Chaque activité complétée vous fait gagner des points. Consultez le
-                  back-office pour suivre la progression des participants.
-                </p>
-              </div>
+        <div className="relative max-w-7xl mx-auto px-6 space-y-32">
+          {/* Header Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center text-center space-y-8 max-w-4xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              </span>
+              <span className="text-xs font-black uppercase tracking-[0.25em] text-cyan-400/90">Système Operational</span>
             </div>
+            
+            <h2 className="text-5xl md:text-6xl lg:text-8 font-black text-white tracking-tight leading-[1.1]">
+              Propulser l'apprentissage <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-sky-400">
+                vers de nouveaux horizons.
+              </span>
+            </h2>
+            
+            <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl font-medium">
+              SumSum est votre guide dans cette exploration interactive. Découvrez un hub de jeux conçu pour 
+              maîtriser les enjeux de l'IA et lutter contre la désinformation.
+            </p>
+          </motion.div>
+
+          {/* Bento Grid layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Card 1: Register */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="group relative flex flex-col h-full rounded-[2.5rem] bg-white/[0.03] border border-white/10 p-8 backdrop-blur-3xl transition-all duration-500 hover:bg-white/[0.05] hover:border-cyan-500/30 hover:shadow-[0_0_50px_rgba(6,182,212,0.1)]"
+            >
+              <div className="flex-1 space-y-8 relative z-10 flex flex-col">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-sky-500/5 border border-cyan-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                  <UserPlus className="w-10 h-10 text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]" />
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-black text-white tracking-wide">Identity Check</h3>
+                  <p className="text-slate-400 text-lg leading-relaxed font-medium">
+                    Initialisez votre profil voyageur. Enregistrez votre progression et accumulez des points d'expertise IA.
+                  </p>
+                </div>
+              </div>
+              <Link to="/register" className="inline-flex items-center w-fit text-sm font-black text-cyan-400 group-hover:text-cyan-300 transition-colors uppercase tracking-[0.2em] gap-4 mt-auto mb-0 bg-white/5 py-4 px-8 rounded-2xl border border-white/5 group-hover:border-cyan-500/20">
+                Register <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+              </Link>
+            </motion.div>
+
+            {/* Card 2: Login */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="group relative flex flex-col h-full rounded-[2.5rem] bg-white/[0.03] border border-white/10 p-8 backdrop-blur-3xl transition-all duration-500 hover:bg-white/[0.05] hover:border-emerald-500/30 hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]"
+            >
+              <div className="flex-1 space-y-8 relative z-10 flex flex-col">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/5 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                  <LogIn className="w-10 h-10 text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.6)]" />
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-black text-white tracking-wide">Auth Portal</h3>
+                  <p className="text-slate-400 text-lg leading-relaxed font-medium">
+                    Accédez à votre tableau de bord. Retrouvez vos succès et préparez-vous pour votre prochaine session.
+                  </p>
+                </div>
+              </div>
+              <Link to="/login" className="inline-flex items-center w-fit text-sm font-black text-emerald-400 group-hover:text-emerald-300 transition-colors uppercase tracking-[0.2em] gap-4 mt-auto mb-0 bg-white/5 py-4 px-8 rounded-2xl border border-white/5 group-hover:border-emerald-500/20">
+                Login <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+              </Link>
+            </motion.div>
+
+            {/* Card 3: Hub */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="group relative flex flex-col h-full rounded-[2.5rem] bg-gradient-to-br from-yellow-500/5 to-orange-500/5 border border-white/10 p-8 backdrop-blur-3xl transition-all duration-500 hover:bg-white/[0.05] hover:border-yellow-500/30 hover:shadow-[0_0_50px_rgba(250,204,21,0.1)] md:col-span-2 lg:col-span-1"
+            >
+              <div className="flex-1 space-y-8 relative z-10 flex flex-col">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-yellow-500/20 to-orange-500/5 border border-yellow-500/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                  <Gamepad2 className="w-10 h-10 text-yellow-500 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]" />
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-black text-white tracking-wide">Mission Control</h3>
+                  <p className="text-slate-400 text-lg leading-relaxed font-medium">
+                    Le hub 3D est votre centre de commande. Choisissez une zone et warp vers votre prochain défi.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="inline-flex items-center w-fit text-sm font-black text-yellow-500 group-hover:text-yellow-400 transition-colors uppercase tracking-[0.2em] gap-4 mt-auto mb-0 bg-white/5 py-4 px-8 rounded-2xl border border-white/5 group-hover:border-yellow-500/20"
+              >
+                Go Hub <Rocket className="w-5 h-5 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-300" />
+              </button>
+            </motion.div>
           </div>
-        </section>
-      )}
+
+          {/* Stats / Numbers Section for weight */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 pt-12 pb-24 border-t border-white/5">
+            {[
+              { label: "Utilisateurs", val: "2.4k+" },
+              { label: "Points Distribués", val: "850k" },
+              { label: "Zones de Jeux", val: "4" },
+              { label: "IA Analysées", val: "100%" },
+            ].map((stat, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center space-y-2"
+              >
+                <div className="text-3xl md:text-5xl font-black text-white">{stat.val}</div>
+                <div className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -505,14 +980,360 @@ function Game() {
   );
 }
 
+// --- Pages Auth & Profil ---
+function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/accounts`);
+      if (!res.ok) throw new Error("Impossible de charger les comptes");
+      const profils: Profil[] = await res.json();
+      const found = profils.find((p) => p.mail === email && p.motDePasse === password);
+      if (!found) {
+        setError("Identifiants invalides");
+        return;
+      }
+      auth.login(found);
+      navigate("/profile");
+    } catch (err: any) {
+      setError(err.message ?? "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (auth.user) {
+    return <Navigate to="/profile" replace />;
+  }
+
+  return (
+    <div className="relative min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10 overflow-hidden">
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
+      
+      <div className="relative w-full max-w-md bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Connexion</h1>
+        <p className="text-sm text-slate-300 mb-6">
+          Connecte-toi pour accéder à ton profil joueur et à tes points.
+        </p>
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+          <div className="space-y-1">
+            <label className="block text-slate-300 font-medium">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl bg-black/50 border border-slate-700/50 px-4 py-3 outline-none focus:border-cyan-400 focus:bg-black/80 transition-all text-white"
+            />
+          </div>
+          <div className="space-y-1.5 pt-2">
+            <label className="block text-slate-300 font-medium">Mot de passe</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl bg-black/50 border border-slate-700/50 px-4 py-3 outline-none focus:border-cyan-400 focus:bg-black/80 transition-all text-white"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-6 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-500 hover:brightness-110 text-slate-950 font-bold py-3 text-base shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all disabled:opacity-60"
+          >
+            {loading ? "Connexion en cours..." : "Se connecter"}
+          </button>
+        </form>
+        <p className="mt-4 text-xs text-slate-400">
+          Pas encore de compte ?{" "}
+          <Link to="/register" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+            Créer un compte
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function RegisterPage() {
+  const [form, setForm] = useState<Profil>({
+    prenom: "",
+    nom: "",
+    mail: "",
+    motDePasse: "",
+    points: 0,
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (field: keyof Profil, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: field === "points" ? Number(value) || 0 : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/accounts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Impossible de créer le compte");
+      const created: Profil = await res.json();
+      auth.login(created);
+      navigate("/profile");
+    } catch (err: any) {
+      setError(err.message ?? "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (auth.user) {
+    return <Navigate to="/profile" replace />;
+  }
+
+  return (
+    <div className="relative min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10 overflow-hidden">
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="relative w-full max-w-md bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Inscription</h1>
+        <p className="text-sm text-slate-300 mb-6">
+          Enregistre un profil joueur pour suivre tes points et tes progrès.
+        </p>
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm mt-8">
+          <div className="space-y-1.5">
+            <label className="block text-slate-300 font-medium">Prénom</label>
+            <input
+              required
+              value={form.prenom}
+              onChange={(e) => handleChange("prenom", e.target.value)}
+              className="w-full rounded-xl bg-black/50 border border-slate-700/50 px-4 py-3 outline-none focus:border-cyan-400 focus:bg-black/80 transition-all text-white"
+            />
+          </div>
+          <div className="space-y-1.5 pt-2">
+            <label className="block text-slate-300 font-medium">Nom</label>
+            <input
+              required
+              value={form.nom}
+              onChange={(e) => handleChange("nom", e.target.value)}
+              className="w-full rounded-xl bg-black/50 border border-slate-700/50 px-4 py-3 outline-none focus:border-cyan-400 focus:bg-black/80 transition-all text-white"
+            />
+          </div>
+          <div className="space-y-1.5 pt-2">
+            <label className="block text-slate-300 font-medium">Email</label>
+            <input
+              type="email"
+              required
+              value={form.mail}
+              onChange={(e) => handleChange("mail", e.target.value)}
+              className="w-full rounded-xl bg-black/50 border border-slate-700/50 px-4 py-3 outline-none focus:border-cyan-400 focus:bg-black/80 transition-all text-white"
+            />
+          </div>
+          <div className="space-y-1.5 pt-2">
+            <label className="block text-slate-300 font-medium">Mot de passe</label>
+            <input
+              type="password"
+              required
+              value={form.motDePasse}
+              onChange={(e) => handleChange("motDePasse", e.target.value)}
+              className="w-full rounded-xl bg-black/50 border border-slate-700/50 px-4 py-3 outline-none focus:border-cyan-400 focus:bg-black/80 transition-all text-white"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-8 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:brightness-110 text-slate-950 font-bold py-3 text-base shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all disabled:opacity-60"
+          >
+            {loading ? "Création en cours..." : "Créer le compte"}
+          </button>
+        </form>
+        <p className="mt-6 text-center text-xs text-slate-400">
+          Tu as déjà un compte ?{" "}
+          <Link to="/login" className="text-emerald-400 hover:text-emerald-300 font-bold tracking-wide">
+            Se connecter
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProfilePage() {
+  const auth = useAuth();
+
+  if (!auth.user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const user = auth.user;
+
+  return (
+    <div className="relative min-h-screen bg-slate-950 text-slate-100 overflow-hidden pb-32">
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-sky-500/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="relative max-w-6xl mx-auto px-6 py-16 space-y-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+          <div className="space-y-3">
+            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">Mon profil</h1>
+            <p className="text-base text-slate-400 max-w-xl leading-relaxed">
+              Récapitulatif de ton compte joueur et accès à la gestion globale des comptes.
+            </p>
+          </div>
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl px-8 py-6 flex flex-col gap-2 min-w-[280px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+            <div className="flex items-baseline justify-between">
+              <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 font-bold">Points</p>
+              <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]">
+                {user.points}
+              </span>
+            </div>
+            <p className="text-sm font-medium text-slate-300 mt-2">
+              {user.prenom} {user.nom}
+            </p>
+            <p className="text-xs text-slate-500">
+              {user.mail}
+            </p>
+          </div>
+        </div>
+
+        {/* Back-office comptes réutilisant AccountsSection */}
+        <AccountsSection />
+      </div>
+    </div>
+  );
+}
+
+// --- Layout classique (navbar + footer) ---
+function Navbar() {
+  const auth = useAuth();
+
+  return (
+    <header className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-4xl rounded-full border border-white/10 bg-slate-900/80 backdrop-blur-2xl shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+      <div className="px-6 sm:px-8 h-16 flex items-center justify-between gap-4">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-sky-400 to-emerald-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform" />
+          <div className="hidden sm:flex flex-col leading-tight">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold">Novaia</span>
+            <span className="text-sm font-bold text-white tracking-wide">Special Week</span>
+          </div>
+        </Link>
+
+        <nav className="flex items-center gap-4 sm:gap-8 text-xs font-bold uppercase tracking-[0.15em] text-slate-300">
+          <Link to="/" className="hover:text-cyan-300">
+            Accueil
+          </Link>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="hover:text-cyan-300"
+          >
+            Hub 3D
+          </button>
+          <Link to="/profile" className="hover:text-cyan-300">
+            Profil
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-3 text-xs">
+          {auth.user ? (
+            <>
+              <span className="hidden md:inline text-slate-300 font-medium">
+                Salut, <span className="font-bold text-white">{auth.user.prenom}</span>
+              </span>
+              <button
+                type="button"
+                onClick={auth.logout}
+                className="px-4 py-2 rounded-full bg-slate-800/80 text-white font-semibold hover:bg-slate-700 transition-colors border border-slate-600"
+              >
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-full border border-slate-600 text-slate-200 hover:bg-slate-800 font-semibold transition-colors"
+              >
+                Connexion
+              </Link>
+              <Link
+                to="/register"
+                className="hidden sm:inline px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all"
+              >
+                Inscription
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="w-full border-t border-slate-800/50 bg-slate-950 pb-24 pt-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <span className="font-medium">© {new Date().getFullYear()} Novaia · Special Week</span>
+        <span className="text-slate-400">Projet pédagogique interactif.</span>
+      </div>
+    </footer>
+  );
+}
+
+function MainLayout() {
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-950">
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/game/:id" element={<Game />} />
+        </Routes>
+      </main>
+      <Footer />
+      <Navbar />
+    </div>
+  );
+}
+
 // --- App Router ---
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/game/:id" element={<Game />} />
-      </Routes>
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
