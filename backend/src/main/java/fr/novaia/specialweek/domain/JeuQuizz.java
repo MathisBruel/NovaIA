@@ -11,14 +11,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Jeu_quizz")
+@Table(name = "jeu_quizz")
 public class JeuQuizz {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_question", nullable = false)
     private TypeQuestionQuizz typeQuestion;
 
@@ -39,6 +39,9 @@ public class JeuQuizz {
 
     @Column(name = "reponse_correcte", nullable = false)
     private Boolean reponseCorrecte;
+
+    @Column(name = "question", nullable = false, length = 500)
+    private String question;
 
     @Column(name = "explication", nullable = false, length = 255)
     private String explication;
@@ -108,6 +111,14 @@ public class JeuQuizz {
 
     public void setReponseCorrecte(Boolean reponseCorrecte) {
         this.reponseCorrecte = reponseCorrecte;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
     public String getExplication() {
