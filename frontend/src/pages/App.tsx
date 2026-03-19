@@ -7,6 +7,7 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import * as THREE from "three";
 import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
 import SwiperGame from "./SwiperGame";
+import QuizGame from "./QuizGame";
 
 // --- Loader ---
 function Loader() {
