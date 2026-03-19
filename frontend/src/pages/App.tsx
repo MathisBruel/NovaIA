@@ -7,6 +7,7 @@ import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import * as THREE from "three";
 import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
+import SwiperGame from "./SwiperGame";
 
 // --- Loader ---
 function Loader() {
@@ -163,7 +164,7 @@ const ZONE_RADIUS = 10;
 const ZONES = [
   {
     id: 1,
-    name: "Jeu 1",
+    name: "Info ou Intox",
     angle: -Math.PI / 3.5,
     color: "#fb7185",
     colorTheme: "from-[#fb7185]/40 via-transparent to-transparent",
@@ -964,6 +965,12 @@ function Home() {
 function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Jeu 1 = Info ou Intox (Swiper)
+  if (id === "1") {
+    return <SwiperGame />;
+  }
+
   return (
     <div className="w-full h-screen bg-black flex flex-col items-center justify-center text-white font-sans">
       <h1 className="text-6xl font-black uppercase tracking-widest text-[#00ffcc] mb-8 drop-shadow-[0_0_20px_rgba(0,255,204,0.5)]">
