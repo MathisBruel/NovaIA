@@ -2,91 +2,179 @@ USE specialweek;
 
 SET FOREIGN_KEY_CHECKS=0;
 
+DELETE FROM question_mytho;
+DELETE FROM reponse_mytho;
+
 INSERT INTO reponse_mytho (id, reponse_1, reponse_2, question_answer_1, question_answer_2) VALUES
+(1, 'Je veux explorer l’espace.', 'Je veux découvrir les animaux.', 2, 49),
 
-(1, 'Espace', 'Animaux', 2, 2),
+(2, 'Je veux parler des planètes.', 'Je veux parler des étoiles.', 3, 34),
+(3, 'Je veux explorer Jupiter.', 'Je veux explorer Mars.', 4, 19),
+(4, 'Je veux découvrir les lunes de Jupiter.', 'Je veux découvrir l’atmosphère de Jupiter.', 5, 12),
+(5, 'Je veux parler d’Europe.', 'Je veux parler de Io.', 6, 9),
+(6, 'Je veux en savoir plus sur l’océan sous la glace.', 'Je veux en savoir plus sur la vie possible.', 7, 8),
+(7, 'Je veux maintenant découvrir la vie possible sur Europe.', 'Je veux passer à Io.', 8, 9),
+(8, 'Je veux continuer avec Io.', 'Je veux revenir au début.', 9, 1),
+(9, 'Je veux parler des volcans de Io.', 'Je veux parler de son activité géologique.', 10, 11),
+(10, 'Je veux en apprendre plus sur son activité géologique.', 'Je veux passer à l’atmosphère de Jupiter.', 11, 12),
+(11, 'Je veux découvrir l’atmosphère de Jupiter.', 'Je veux revenir au début.', 12, 1),
+(12, 'Je veux parler des tempêtes.', 'Je veux parler de la Grande Tache Rouge.', 13, 16),
+(13, 'Je veux en savoir plus sur les vents puissants.', 'Je veux en savoir plus sur les nuages colorés.', 14, 15),
+(14, 'Je veux maintenant découvrir les nuages colorés.', 'Je veux passer à la Grande Tache Rouge.', 15, 16),
+(15, 'Je veux découvrir la Grande Tache Rouge.', 'Je veux passer à Mars.', 16, 19),
+(16, 'Je veux parler de sa taille.', 'Je veux parler de la durée de la tempête.', 17, 18),
+(17, 'Je veux en apprendre plus sur la durée de cette tempête.', 'Je veux passer à Mars.', 18, 19),
+(18, 'Je veux passer à Mars.', 'Je veux parler des étoiles.', 19, 34),
 
-(2, 'Planètes', 'Étoiles', 3, 20),
+(19, 'Je veux parler de l’eau sur Mars.', 'Je veux parler des robots martiens.', 20, 27),
+(20, 'Je veux découvrir la glace aux pôles.', 'Je veux découvrir les anciens océans.', 21, 24),
+(21, 'Je veux parler des calottes polaires.', 'Je veux parler de l’eau gelée sous le sol.', 22, 23),
+(22, 'Je veux maintenant découvrir l’eau gelée sous le sol.', 'Je veux passer aux anciens océans.', 23, 24),
+(23, 'Je veux découvrir les anciens océans martiens.', 'Je veux passer aux robots martiens.', 24, 27),
+(24, 'Je veux parler des rivières passées.', 'Je veux parler des lacs anciens.', 25, 26),
+(25, 'Je veux maintenant découvrir les lacs anciens.', 'Je veux passer aux robots martiens.', 26, 27),
+(26, 'Je veux découvrir les robots martiens.', 'Je veux passer aux étoiles.', 27, 34),
+(27, 'Je veux découvrir Curiosity.', 'Je veux découvrir Perseverance.', 28, 31),
+(28, 'Je veux parler des analyses de roches.', 'Je veux parler de la recherche d’eau.', 29, 30),
+(29, 'Je veux maintenant parler de la recherche d’eau.', 'Je veux passer à Perseverance.', 30, 31),
+(30, 'Je veux découvrir Perseverance.', 'Je veux passer aux étoiles.', 31, 34),
+(31, 'Je veux parler de la recherche de vie.', 'Je veux parler de la collecte d’échantillons.', 32, 33),
+(32, 'Je veux maintenant parler de la collecte d’échantillons.', 'Je veux passer aux étoiles.', 33, 34),
+(33, 'Je veux passer aux étoiles.', 'Je veux découvrir les animaux.', 34, 49),
 
-(3, 'Jupiter', 'Mars', 4, 10),
+(34, 'Je veux parler du Soleil.', 'Je veux parler des supernovas.', 35, 42),
+(35, 'Je veux parler de sa composition.', 'Je veux parler de son cycle de vie.', 36, 39),
+(36, 'Je veux découvrir l’hydrogène.', 'Je veux découvrir l’hélium.', 37, 38),
+(37, 'Je veux maintenant découvrir l’hélium.', 'Je veux passer au cycle de vie du Soleil.', 38, 39),
+(38, 'Je veux parler du cycle de vie du Soleil.', 'Je veux passer aux supernovas.', 39, 42),
+(39, 'Je veux parler de son état actuel.', 'Je veux parler de sa future phase de géante rouge.', 40, 41),
+(40, 'Je veux maintenant découvrir sa future phase de géante rouge.', 'Je veux passer aux supernovas.', 41, 42),
+(41, 'Je veux passer aux supernovas.', 'Je veux découvrir les animaux.', 42, 49),
+(42, 'Je veux parler de l’explosion.', 'Je veux parler de la création des éléments.', 43, 46),
+(43, 'Je veux parler de l’effondrement du cœur.', 'Je veux parler de l’onde de choc.', 44, 45),
+(44, 'Je veux maintenant découvrir l’onde de choc.', 'Je veux passer à la création des éléments.', 45, 46),
+(45, 'Je veux parler de la création des éléments.', 'Je veux découvrir les animaux.', 46, 49),
+(46, 'Je veux parler des métaux lourds.', 'Je veux parler de la dispersion de la matière.', 47, 48),
+(47, 'Je veux maintenant découvrir la dispersion de la matière.', 'Je veux découvrir les animaux.', 48, 49),
+(48, 'Je veux découvrir les animaux.', 'Je veux revenir au début.', 49, 1),
 
-(4, 'Ses lunes', 'Son atmosphère', 5, 7),
+(49, 'Je veux parler des pieuvres.', 'Je veux parler des oiseaux.', 50, 65),
+(50, 'Je veux découvrir leur intelligence.', 'Je veux découvrir leur corps.', 51, 58),
+(51, 'Je veux parler de la résolution de problèmes.', 'Je veux parler du camouflage.', 52, 55),
+(52, 'Je veux parler de leur capacité à ouvrir des bocaux.', 'Je veux parler de leur capacité à manipuler des objets.', 53, 54),
+(53, 'Je veux maintenant découvrir leur capacité à manipuler des objets.', 'Je veux passer au camouflage.', 54, 55),
+(54, 'Je veux découvrir le camouflage des pieuvres.', 'Je veux parler du corps des pieuvres.', 55, 58),
+(55, 'Je veux parler du changement de couleur.', 'Je veux parler du changement de texture.', 56, 57),
+(56, 'Je veux maintenant découvrir le changement de texture.', 'Je veux parler du corps des pieuvres.', 57, 58),
+(57, 'Je veux parler du corps des pieuvres.', 'Je veux passer aux oiseaux.', 58, 65),
+(58, 'Je veux parler de leurs cœurs.', 'Je veux parler de leurs bras.', 59, 62),
+(59, 'Je veux parler du fait qu’elles ont trois cœurs.', 'Je veux parler de leur circulation sanguine.', 60, 61),
+(60, 'Je veux maintenant découvrir leur circulation sanguine.', 'Je veux passer à leurs bras.', 61, 62),
+(61, 'Je veux parler de leurs bras.', 'Je veux passer aux oiseaux.', 62, 65),
+(62, 'Je veux parler des ventouses.', 'Je veux parler de la sensibilité tactile.', 63, 64),
+(63, 'Je veux maintenant découvrir la sensibilité tactile.', 'Je veux passer aux oiseaux.', 64, 65),
+(64, 'Je veux passer aux oiseaux.', 'Je veux revenir au début.', 65, 1),
 
-(5, 'Europe', 'Io', 6, 8),
-
-(6, 'Un océan caché', 'Un noyau de feu', 9, 9),
-
-(7, 'Très puissantes', 'Calmes', 9, 9),
-
-(8, 'Ses volcans', 'Ses forêts glacées', 9, 9),
-
-(9, 'L’eau', 'Les robots', 11, 14),
-
-(10, 'Des calottes de glace', 'Des mers tropicales', 12, 12),
-
-(11, 'Des rivières', 'Des jungles', 13, 13),
-
-(12, 'Curiosity', 'Perseverance', 15, 16),
-
-(13, 'Analyser les roches', 'Construire une ville', 17, 17),
-
-(14, 'Des traces de vie', 'Des animaux vivants', 17, 17),
-
-(15, 'Le Soleil', 'Les supernovas', 21, 24),
-
-(16, 'Hydrogène', 'Bois en feu', 22, 22),
-
-(17, 'Hélium', 'Pierre', 23, 23),
-
-(18, 'Une explosion d’étoile', 'Une planète', 25, 25);
+(65, 'Je veux parler du vol des oiseaux.', 'Je veux parler de leur origine.', 66, 73),
+(66, 'Je veux parler des ailes.', 'Je veux parler des os légers.', 67, 70),
+(67, 'Je veux parler du battement des ailes.', 'Je veux parler du vol plané.', 68, 69),
+(68, 'Je veux maintenant découvrir le vol plané.', 'Je veux passer aux os légers.', 69, 70),
+(69, 'Je veux parler des os légers.', 'Je veux passer à l’origine des oiseaux.', 70, 73),
+(70, 'Je veux parler de la structure des os.', 'Je veux parler de l’adaptation au vol.', 71, 72),
+(71, 'Je veux maintenant découvrir l’adaptation au vol.', 'Je veux passer à l’origine des oiseaux.', 72, 73),
+(72, 'Je veux passer à l’origine des oiseaux.', 'Je veux revenir au début.', 73, 1),
+(73, 'Je veux parler du lien avec les dinosaures.', 'Je veux parler de l’évolution des oiseaux.', 74, 77),
+(74, 'Je veux parler des fossiles.', 'Je veux parler de l’évolution des plumes.', 75, 76),
+(75, 'Je veux maintenant découvrir l’évolution des plumes.', 'Je veux passer à l’évolution des oiseaux.', 76, 77),
+(76, 'Je veux parler de l’évolution des oiseaux.', 'Je veux revenir au début.', 77, 1),
+(77, 'Je veux parler de leur adaptation.', 'Je veux parler de la diversité des espèces.', 78, 79),
+(78, 'Je veux maintenant découvrir la diversité des espèces.', 'Je veux revenir au début.', 79, 1),
+(79, 'Je veux revenir au début.', 'Je veux explorer l’espace.', 1, 2);
 
 INSERT INTO question_mytho (id, id_reponses, question, est_coherent) VALUES
+(1, 1, 'Bonjour ! Pour commencer, veux-tu explorer l’espace ou découvrir le monde des animaux ?', NULL),
 
-(1, 1, 'Tu veux parler de quoi ?', TRUE),
+(2, 2, 'Très bon choix. Dans l’espace, veux-tu parler des planètes ou des étoiles ?', NULL),
+(3, 3, 'Parmi les planètes, préfères-tu explorer Jupiter ou Mars ?', NULL),
+(4, 4, 'À propos de Jupiter, veux-tu découvrir ses lunes ou son atmosphère ?', NULL),
+(5, 5, 'Parmi les lunes de Jupiter, veux-tu parler d’Europe ou de Io ?', NULL),
+(6, 6, 'À propos d’Europe, qu’est-ce qui t’intéresse le plus : l’océan sous la glace ou la possibilité d’une vie ?', NULL),
+(7, 7, 'Europe pourrait cacher un océan sous sa surface glacée. Que veux-tu faire maintenant ?', TRUE),
+(8, 8, 'La présence d’eau liquide sous la glace d’Europe fait penser qu’une vie microscopique pourrait peut-être y exister. Que veux-tu faire maintenant ?', TRUE),
+(9, 9, 'À propos de Io, veux-tu parler de ses volcans ou de son activité géologique ?', NULL),
+(10, 10, 'Io est connue pour ses très nombreux volcans, parmi les plus actifs du système solaire. Que veux-tu faire maintenant ?', TRUE),
+(11, 11, 'Io possède une activité géologique intense, provoquée notamment par les forces exercées par Jupiter. Que veux-tu faire maintenant ?', TRUE),
+(12, 12, 'À propos de l’atmosphère de Jupiter, veux-tu parler des tempêtes ou de la Grande Tache Rouge ?', NULL),
+(13, 13, 'Concernant les tempêtes de Jupiter, veux-tu en savoir plus sur la puissance des vents ou sur les nuages colorés ?', NULL),
+(14, 14, 'Les vents des tempêtes de Jupiter sont extrêmement puissants et peuvent atteindre des vitesses impressionnantes. Que veux-tu faire maintenant ?', TRUE),
+(15, 15, 'Les nuages de Jupiter apparaissent sous différentes couleurs à cause de la composition chimique de son atmosphère. Que veux-tu faire maintenant ?', TRUE),
+(16, 16, 'À propos de la Grande Tache Rouge, veux-tu parler de sa taille ou de la durée de cette tempête ?', NULL),
+(17, 17, 'La Grande Tache Rouge est une tempête géante, plus grande que la Terre à certaines périodes. Que veux-tu faire maintenant ?', TRUE),
+(18, 18, 'Cette tempête existe depuis très longtemps et elle est observée depuis plusieurs siècles. Que veux-tu faire maintenant ?', TRUE),
 
-(2, 2, 'Dans l’espace, qu’est-ce qui t’intéresse ?', TRUE),
+(19, 19, 'Passons à Mars. Veux-tu parler de l’eau sur Mars ou des robots qui l’explorent ?', NULL),
+(20, 20, 'À propos de l’eau sur Mars, veux-tu parler de la glace aux pôles ou des anciens océans ?', NULL),
+(21, 21, 'Concernant la glace aux pôles, veux-tu parler des calottes polaires ou de l’eau gelée sous le sol ?', NULL),
+(22, 22, 'Mars possède des calottes polaires, composées notamment de glace d’eau et de glace carbonique. Que veux-tu faire maintenant ?', TRUE),
+(23, 23, 'Les scientifiques pensent qu’il existe aussi de l’eau gelée sous la surface martienne. Que veux-tu faire maintenant ?', TRUE),
+(24, 24, 'À propos des anciens océans martiens, veux-tu parler des rivières passées ou des lacs anciens ?', NULL),
+(25, 25, 'Certaines vallées martiennes montrent que des rivières ont autrefois coulé à la surface de Mars. Que veux-tu faire maintenant ?', TRUE),
+(26, 26, 'Des indices géologiques laissent penser que Mars a aussi abrité d’anciens lacs. Que veux-tu faire maintenant ?', TRUE),
+(27, 27, 'À propos des robots sur Mars, veux-tu découvrir Curiosity ou Perseverance ?', NULL),
+(28, 28, 'Que veux-tu savoir sur Curiosity : ses analyses de roches ou sa recherche liée à l’eau ?', NULL),
+(29, 29, 'Curiosity analyse les roches martiennes pour mieux comprendre l’histoire de la planète. Que veux-tu faire maintenant ?', TRUE),
+(30, 30, 'Curiosity étudie aussi les indices qui permettent de savoir si l’eau a existé sur Mars. Que veux-tu faire maintenant ?', TRUE),
+(31, 31, 'Que veux-tu savoir sur Perseverance : sa recherche de traces de vie ou sa collecte d’échantillons ?', NULL),
+(32, 32, 'Perseverance recherche des traces d’une ancienne vie microbienne sur Mars. Que veux-tu faire maintenant ?', TRUE),
+(33, 33, 'Perseverance collecte des échantillons pour qu’ils puissent être étudiés plus tard. Que veux-tu faire maintenant ?', TRUE),
 
-(3, 3, 'Quelle planète veux-tu explorer ?', TRUE),
+(34, 34, 'Passons aux étoiles. Veux-tu parler du Soleil ou des supernovas ?', NULL),
+(35, 35, 'À propos du Soleil, veux-tu parler de sa composition ou de son cycle de vie ?', NULL),
+(36, 36, 'Concernant la composition du Soleil, veux-tu parler de l’hydrogène ou de l’hélium ?', NULL),
+(37, 37, 'Le Soleil est composé en grande majorité d’hydrogène, le gaz qui alimente ses réactions nucléaires. Que veux-tu faire maintenant ?', TRUE),
+(38, 38, 'L’hélium est le deuxième élément le plus présent dans le Soleil. Que veux-tu faire maintenant ?', TRUE),
+(39, 39, 'À propos du cycle de vie du Soleil, veux-tu parler de son état actuel ou de sa future phase de géante rouge ?', NULL),
+(40, 40, 'Aujourd’hui, le Soleil est une étoile active de taille moyenne, en pleine phase stable. Que veux-tu faire maintenant ?', TRUE),
+(41, 41, 'Dans très longtemps, le Soleil deviendra une géante rouge avant la fin de sa vie. Que veux-tu faire maintenant ?', TRUE),
+(42, 42, 'À propos des supernovas, veux-tu parler de leur explosion ou de la création d’éléments ?', NULL),
+(43, 43, 'Concernant l’explosion d’une supernova, veux-tu parler de l’effondrement du cœur ou de l’onde de choc ?', NULL),
+(44, 44, 'Une supernova commence par l’effondrement du cœur d’une étoile massive. Que veux-tu faire maintenant ?', TRUE),
+(45, 45, 'Après cet effondrement, une onde de choc extrêmement puissante se propage dans l’espace. Que veux-tu faire maintenant ?', TRUE),
+(46, 46, 'À propos de la création d’éléments, veux-tu parler des métaux lourds ou de la dispersion de la matière ?', NULL),
+(47, 47, 'Les supernovas participent à la formation de métaux lourds comme le fer ou l’or. Que veux-tu faire maintenant ?', TRUE),
+(48, 48, 'Lors d’une supernova, de la matière est dispersée dans l’espace, ce qui enrichit l’univers en éléments. Que veux-tu faire maintenant ?', TRUE),
 
-(4, 4, 'Que veux-tu découvrir sur Jupiter ?', TRUE),
+(49, 49, 'Passons aux animaux. Veux-tu parler des pieuvres ou des oiseaux ?', NULL),
+(50, 50, 'À propos des pieuvres, veux-tu découvrir leur intelligence ou leur corps ?', NULL),
+(51, 51, 'Concernant leur intelligence, veux-tu parler de leur résolution de problèmes ou de leur camouflage ?', NULL),
+(52, 52, 'Dans la résolution de problèmes, veux-tu parler de leur capacité à ouvrir des bocaux ou à manipuler des objets ?', NULL),
+(53, 53, 'Les pieuvres peuvent parfois ouvrir des bocaux, ce qui montre leur grande capacité d’apprentissage. Que veux-tu faire maintenant ?', TRUE),
+(54, 54, 'Les pieuvres savent manipuler des objets avec précision grâce à leurs bras très souples. Que veux-tu faire maintenant ?', TRUE),
+(55, 55, 'À propos du camouflage, veux-tu parler du changement de couleur ou du changement de texture ?', NULL),
+(56, 56, 'Les pieuvres peuvent changer rapidement de couleur pour se cacher ou communiquer. Que veux-tu faire maintenant ?', TRUE),
+(57, 57, 'Elles peuvent aussi modifier la texture de leur peau pour mieux se fondre dans leur environnement. Que veux-tu faire maintenant ?', TRUE),
+(58, 58, 'À propos du corps des pieuvres, veux-tu parler de leurs cœurs ou de leurs bras ?', NULL),
+(59, 59, 'Concernant leurs cœurs, veux-tu parler du fait qu’elles en ont trois ou de leur circulation sanguine ?', NULL),
+(60, 60, 'Les pieuvres possèdent trois cœurs, ce qui est très différent du corps humain. Que veux-tu faire maintenant ?', TRUE),
+(61, 61, 'Leur circulation sanguine est particulière et leur sang transporte l’oxygène grâce à une molécule différente de la nôtre. Que veux-tu faire maintenant ?', TRUE),
+(62, 62, 'Concernant leurs bras, veux-tu parler des ventouses ou de leur sensibilité tactile ?', NULL),
+(63, 63, 'Les ventouses des pieuvres leur permettent de s’accrocher très efficacement à de nombreuses surfaces. Que veux-tu faire maintenant ?', TRUE),
+(64, 64, 'Les bras des pieuvres sont très sensibles et peuvent détecter des informations par le toucher. Que veux-tu faire maintenant ?', TRUE),
 
-(5, 5, 'Quelle lune de Jupiter ?', TRUE),
-
-(6, 6, 'Sous la glace d’Europe, on trouve ?', TRUE),
-
-(7, 7, 'Comment sont les tempêtes sur Jupiter ?', TRUE),
-
-(8, 8, 'Io est connue pour ?', TRUE),
-
-(9, NULL, 'La Grande Tache Rouge est une tempête géante.', TRUE),
-
-(10, 9, 'Que veux-tu explorer sur Mars ?', TRUE),
-
-(11, 10, 'Que trouve-t-on aux pôles de Mars ?', TRUE),
-
-(12, 11, 'Mars possédait autrefois ?', TRUE),
-
-(13, NULL, 'Mars a bien eu de l’eau dans le passé.', TRUE),
-
-(14, 12, 'Quel robot martien ?', TRUE),
-
-(15, 13, 'Curiosity sert à ?', TRUE),
-
-(16, 14, 'Perseverance cherche ?', TRUE),
-
-(17, NULL, 'Les robots collectent des échantillons.', TRUE),
-
-(20, 15, 'Que veux-tu savoir ?', TRUE),
-
-(21, 16, 'Le Soleil est composé de ?', TRUE),
-
-(22, 17, 'Et aussi de ?', TRUE),
-
-(23, NULL, 'Le Soleil deviendra une géante rouge.', TRUE),
-
-(24, 18, 'Une supernova est ?', TRUE),
-
-(25, NULL, 'Elle crée des éléments lourds.', TRUE);
+(65, 65, 'Passons aux oiseaux. Veux-tu parler de leur vol ou de leur origine ?', NULL),
+(66, 66, 'À propos du vol, veux-tu parler des ailes ou des os légers ?', NULL),
+(67, 67, 'Concernant les ailes, veux-tu parler du battement des ailes ou du vol plané ?', NULL),
+(68, 68, 'Le battement des ailes permet à beaucoup d’oiseaux de décoller, de se diriger et de rester en l’air. Que veux-tu faire maintenant ?', TRUE),
+(69, 69, 'Certains oiseaux utilisent aussi le vol plané pour se déplacer en économisant leur énergie. Que veux-tu faire maintenant ?', TRUE),
+(70, 70, 'Concernant les os légers, veux-tu parler de leur structure ou de leur adaptation au vol ?', NULL),
+(71, 71, 'Les os des oiseaux ont une structure légère, ce qui réduit leur poids. Que veux-tu faire maintenant ?', TRUE),
+(72, 72, 'Cette légèreté constitue une adaptation très utile pour faciliter le vol. Que veux-tu faire maintenant ?', TRUE),
+(73, 73, 'À propos de l’origine des oiseaux, veux-tu parler de leur lien avec les dinosaures ou de leur évolution ?', NULL),
+(74, 74, 'Concernant le lien avec les dinosaures, veux-tu parler des fossiles ou de l’évolution des plumes ?', NULL),
+(75, 75, 'Les fossiles montrent que les oiseaux partagent plusieurs caractéristiques avec certains dinosaures. Que veux-tu faire maintenant ?', TRUE),
+(76, 76, 'L’évolution des plumes est un élément important pour comprendre le lien entre dinosaures et oiseaux. Que veux-tu faire maintenant ?', TRUE),
+(77, 77, 'À propos de l’évolution des oiseaux, veux-tu parler de leur adaptation ou de la diversité des espèces ?', NULL),
+(78, 78, 'Les oiseaux se sont adaptés à de nombreux milieux de vie, ce qui explique leurs différences. Que veux-tu faire maintenant ?', TRUE),
+(79, 79, 'Il existe aujourd’hui une très grande diversité d’espèces d’oiseaux dans le monde. Que veux-tu faire maintenant ?', TRUE);
 
 SET FOREIGN_KEY_CHECKS=1;
-

@@ -1,4 +1,5 @@
 import React, { Suspense, useState, useRef, useEffect, useContext, createContext } from "react";
+import AiMockGame from "../components/AiMockGame";
 import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, useProgress, Sky, Stars } from "@react-three/drei";
@@ -964,6 +965,10 @@ function Home() {
 function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
+  if (id === "4") {
+    return <AiMockGame />;
+  }
+
   return (
     <div className="w-full h-screen bg-black flex flex-col items-center justify-center text-white font-sans">
       <h1 className="text-6xl font-black uppercase tracking-widest text-[#00ffcc] mb-8 drop-shadow-[0_0_20px_rgba(0,255,204,0.5)]">
@@ -1314,6 +1319,7 @@ function MainLayout() {
     <div className="min-h-screen flex flex-col bg-slate-950">
       <main className="flex-1">
         <Routes>
+          <Route path="/game/4" element={<AiMockGame />} />
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
