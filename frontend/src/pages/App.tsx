@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useRef, useEffect, useContext, createContext } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate, useLocation } from "react-router-dom";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, useProgress, Sky, Stars } from "@react-three/drei";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
@@ -15,12 +15,12 @@ function Loader() {
   return (
     <Html center>
       <div className="flex flex-col items-center gap-4 text-white p-8 bg-black/80 rounded-xl backdrop-blur-md">
-        <div className="text-xl font-bold uppercase tracking-widest text-[#00ffcc]">
+        <div className="text-xl font-bold uppercase tracking-widest text-fuchsia-200">
           Chargement SumSum
         </div>
-        <div className="w-[300px] h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-600">
-          <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-[#00ffcc] transition-all duration-300" 
+        <div className="w-[300px] h-3 bg-slate-900/80 rounded-full overflow-hidden border border-white/10">
+          <div
+            className="h-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -830,7 +830,7 @@ function Home() {
         {mode === "intro" && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-end pb-16 pointer-events-none">
             <button
-              className={`pointer-events-auto px-12 py-4 rounded-full bg-gradient-to-r from-blue-500 to-[#00ffcc] text-black text-2xl font-black uppercase tracking-[0.25em] shadow-[0_0_30px_rgba(0,255,204,0.6)] border-4 border-white/60 transition-all ${
+              className={`pointer-events-auto px-12 py-4 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 text-2xl font-black uppercase tracking-[0.25em] shadow-[0_12px_44px_rgba(168,85,247,0.4)] border border-white/30 transition-all ${
                 introReady ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" : "opacity-0 translate-y-6"
               }`}
               disabled={!introReady}
@@ -849,10 +849,10 @@ function Home() {
                 warpTriggered ? "opacity-0" : "opacity-100"
               }`}
             >
-              <div className="bg-black/30 backdrop-blur-xl px-8 py-3 rounded-full border border-white/10 flex flex-col items-center shadow-[0_0_25px_rgba(15,23,42,0.9)]">
+              <div className="bg-black/30 backdrop-blur-xl px-8 sm:px-10 py-3.5 rounded-full border border-white/10 flex flex-col items-center shadow-[0_0_25px_rgba(15,23,42,0.9)] max-w-[92vw]">
                 <h2 className="text-[11px] uppercase tracking-[0.35em] text-slate-300 mb-1">Destination</h2>
                 <h1
-                  className={`text-3xl font-extrabold uppercase tracking-[0.18em] ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
+                  className={`text-2xl sm:text-3xl text-center font-extrabold uppercase tracking-[0.12em] sm:tracking-[0.14em] leading-tight break-words ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
                 >
                   {currentZone.gameName}
                 </h1>
@@ -868,10 +868,10 @@ function Home() {
               {/* Touch / Click Controls */}
               <div className="flex gap-4 items-end">
                 <button
-                  className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
+                  className={`p-5 rounded-full bg-slate-900/60 backdrop-blur-md border border-white/20 transition-all text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${
                     selectedZoneIndex === 0
                       ? "opacity-30 cursor-not-allowed"
-                      : "hover:bg-white/20 hover:border-white/50 active:scale-95"
+                      : "hover:bg-white/15 hover:border-white/50 active:scale-95"
                   }`}
                   onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
                   disabled={selectedZoneIndex === 0 || warpTriggered}
@@ -880,10 +880,10 @@ function Home() {
                 </button>
 
                 <button
-                  className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
+                  className={`p-5 rounded-full bg-slate-900/60 backdrop-blur-md border border-white/20 transition-all text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${
                     selectedZoneIndex === ZONES.length - 1
                       ? "opacity-30 cursor-not-allowed"
-                      : "hover:bg-white/20 hover:border-white/50 active:scale-95"
+                      : "hover:bg-white/15 hover:border-white/50 active:scale-95"
                   }`}
                   onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
                   disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
@@ -892,7 +892,7 @@ function Home() {
                 </button>
 
                 <button
-                  className="ml-6 px-10 py-5 h-[76px] rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 text-slate-950 font-extrabold uppercase tracking-[0.25em] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_35px_rgba(56,189,248,0.8)] flex items-center gap-3 border border-white/40"
+                  className="ml-6 px-10 py-5 h-[76px] rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 font-extrabold uppercase tracking-[0.25em] hover:brightness-110 active:scale-95 transition-all shadow-[0_12px_44px_rgba(168,85,247,0.45)] flex items-center gap-3 border border-white/40"
                   onClick={triggerWarp}
                   disabled={warpTriggered}
                 >
@@ -934,84 +934,27 @@ function Home() {
         )}
       </section>
 
+      {/* Navbar entre le hub 3D et le contenu informatif */}
+      <Navbar />
+
       {/* Section contenu classique sous le hero */}
-      <section className="relative w-full bg-slate-950 pt-20 pb-24 overflow-hidden border-t border-white/5">
+      <section className="relative w-full bg-gradient-to-br from-[#140626] via-[#1b0b3a] to-[#0f1026] pt-28 pb-32 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-cyan-500/10 blur-[100px] rounded-full" />
-          <div className="absolute -bottom-36 left-1/3 w-[900px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full" />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-fuchsia-500/15 blur-[110px] rounded-full" />
+          <div className="absolute -bottom-36 left-1/3 w-[900px] h-[600px] bg-indigo-500/15 blur-[130px] rounded-full" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6">
-          <div className="max-w-3xl">
-            <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight tracking-tight">
-              Propulser l'apprentissage <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-sky-400">vers de nouveaux horizons</span>.
+        <div className="relative max-w-[1200px] mx-auto px-12 sm:px-16 lg:px-24 2xl:px-32">
+          <div className="max-w-4xl">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+              Propulser l'apprentissage <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400">vers de nouveaux horizons</span>.
             </h2>
-            <p className="mt-4 text-lg text-slate-400 leading-relaxed">
+            <p className="mt-5 text-lg md:text-xl text-slate-300 leading-relaxed max-w-3xl break-words">
               SumSum te guide dans un hub de jeux pour maîtriser les enjeux de l'IA et lutter contre la désinformation.
             </p>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <UserPlus className="w-6 h-6 text-cyan-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Compte & progression</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Crée un compte, gère tes points et avance dans les différents modes de jeu.
-              </p>
-              <div className="flex gap-3 pt-2">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 transition-all"
-                >
-                  Créer
-                </Link>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold hover:bg-white/10 transition-all"
-                >
-                  Connexion
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <LogIn className="w-6 h-6 text-emerald-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Profil</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Consulte ton solde, ton historique et ajuste tes informations à tout moment.
-              </p>
-              <div className="pt-2">
-                <Link
-                  to="/profile"
-                  className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold hover:bg-white/10 transition-all"
-                >
-                  Ouvrir mon profil
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4 md:col-span-1">
-              <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
-                <Gamepad2 className="w-6 h-6 text-yellow-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Hub 3D</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Choisis une zone et lance ton prochain défi directement depuis le hub.
-              </p>
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 transition-all"
-                >
-                  Aller au hub <Rocket className="w-5 h-5 ml-2" />
-                </button>
-              </div>
-            </div>
+            <p className="mt-3 text-base text-slate-400 leading-relaxed max-w-3xl break-words">
+              Apprends par l'action, progresse avec des points et developpe de vrais reflexes face aux contenus trompeurs.
+            </p>
           </div>
         </div>
       </section>
@@ -1303,28 +1246,28 @@ function Navbar() {
   const auth = useAuth();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
-      <div className="mx-auto px-4 sm:px-6 h-16 max-w-7xl flex items-center justify-between gap-4">
+    <header className="w-full border-y border-white/10 bg-gradient-to-r from-[#140626]/90 via-[#2a0f52]/80 to-[#140626]/90 backdrop-blur-xl shadow-[0_12px_40px_rgba(7,5,20,0.55)] transition-all duration-500">
+      <div className="mx-auto px-12 sm:px-16 lg:px-24 2xl:px-32 h-16 max-w-[1400px] flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-sky-400 to-emerald-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform" />
+          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-fuchsia-400 via-violet-400 to-sky-400 shadow-[0_0_18px_rgba(168,85,247,0.6)] group-hover:scale-105 transition-transform" />
           <div className="hidden sm:flex flex-col leading-tight">
-            <span className="text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold">Novaia</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-fuchsia-300 font-bold">Novaia</span>
             <span className="text-sm font-bold text-white tracking-wide">Special Week</span>
           </div>
         </Link>
 
-        <nav className="flex items-center gap-5 text-sm font-semibold text-slate-200">
-          <Link to="/" className="hover:text-cyan-300">
+        <nav className="flex items-center gap-6 text-sm font-semibold text-slate-200">
+          <Link to="/" className="hover:text-fuchsia-200 transition-colors">
             Accueil
           </Link>
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="hover:text-cyan-300"
+            className="hover:text-fuchsia-200 transition-colors"
           >
             Hub 3D
           </button>
-          <Link to="/profile" className="hover:text-cyan-300">
+          <Link to="/profile" className="hover:text-fuchsia-200 transition-colors">
             Profil
           </Link>
         </nav>
@@ -1338,7 +1281,7 @@ function Navbar() {
               <button
                 type="button"
                 onClick={auth.logout}
-                className="px-4 py-2 rounded-xl bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors border border-white/10"
+                className="px-4 py-2 rounded-full bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors border border-white/15"
               >
                 Déconnexion
               </button>
@@ -1347,13 +1290,13 @@ function Navbar() {
             <>
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-xl border border-white/10 text-slate-200 hover:bg-white/5 font-semibold transition-colors bg-white/0"
+                className="px-4 py-2 rounded-full border border-white/15 text-slate-200 hover:bg-white/10 hover:border-white/30 font-semibold transition-colors bg-white/0"
               >
                 Connexion
               </Link>
               <Link
                 to="/register"
-                className="hidden sm:inline px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all"
+                className="hidden sm:inline px-4 py-2 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_10px_30px_rgba(168,85,247,0.35)] transition-all"
               >
                 Inscription
               </Link>
@@ -1368,7 +1311,7 @@ function Navbar() {
 function Footer() {
   return (
     <footer className="w-full border-t border-white/10 bg-slate-950 py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-slate-400">
+      <div className="max-w-[1400px] mx-auto px-12 sm:px-16 lg:px-24 2xl:px-32 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-slate-400">
         <span className="font-semibold text-slate-200">
           © {new Date().getFullYear()} Novaia · Special Week
         </span>
@@ -1379,9 +1322,13 @@ function Footer() {
 }
 
 function MainLayout() {
+  const location = useLocation();
+  const showTopNav = location.pathname !== "/";
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
-      <main className="flex-1 pt-16">
+      {showTopNav && <Navbar />}
+      <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
@@ -1390,7 +1337,6 @@ function MainLayout() {
         </Routes>
       </main>
       <Footer />
-      <Navbar />
     </div>
   );
 }
