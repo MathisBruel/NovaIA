@@ -26,7 +26,8 @@ services:
       dockerfile: Dockerfile
     container_name: specialweek-frontend
     environment:
-      - VITE_API_BASE_URL=http://specialweek-backend:8080
+      - VITE_API_BASE_URL=
+      - VITE_API_PROXY_TARGET=http://backend:8080
     ports:
       - "5173:5173"
     depends_on:

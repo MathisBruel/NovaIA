@@ -2,11 +2,12 @@ import React, { Suspense, useState, useRef, useEffect, useContext, createContext
 import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, useProgress, Sky, Stars } from "@react-three/drei";
-import { motion, AnimatePresence } from "framer-motion";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import * as THREE from "three";
 import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
+import SwiperGame from "./SwiperGame";
+import QuizGame from "./QuizGame";
 
 // --- Loader ---
 function Loader() {
@@ -259,7 +260,7 @@ const ZONE_RADIUS = 10;
 const ZONES = [
   {
     id: 1,
-    name: "Jeu 1",
+    name: "Info ou Intox",
     angle: -Math.PI / 3.5,
     color: "#fb7185",
     colorTheme: "from-[#fb7185]/40 via-transparent to-transparent",
@@ -381,7 +382,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function useAuth() {
+export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) {
     throw new Error("useAuth must be used within AuthProvider");
@@ -934,141 +935,83 @@ function Home() {
       </section>
 
       {/* Section contenu classique sous le hero */}
-      <section className="relative w-full bg-slate-950 pt-32 pb-48 overflow-hidden border-t border-white/5">
-        {/* Decorative Background Elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full" />
+      <section className="relative w-full bg-slate-950 pt-20 pb-24 overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-cyan-500/10 blur-[100px] rounded-full" />
+          <div className="absolute -bottom-36 left-1/3 w-[900px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 space-y-32">
-          {/* Header Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col items-center text-center space-y-8 max-w-4xl mx-auto"
-          >
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              <span className="text-xs font-black uppercase tracking-[0.25em] text-cyan-400/90">Système Operational</span>
-            </div>
-            
-            <h2 className="text-5xl md:text-6xl lg:text-8 font-black text-white tracking-tight leading-[1.1]">
-              Propulser l'apprentissage <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-sky-400">
-                vers de nouveaux horizons.
-              </span>
+        <div className="relative max-w-7xl mx-auto px-6">
+          <div className="max-w-3xl">
+            <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight tracking-tight">
+              Propulser l'apprentissage <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-sky-400">vers de nouveaux horizons</span>.
             </h2>
-            
-            <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl font-medium">
-              SumSum est votre guide dans cette exploration interactive. Découvrez un hub de jeux conçu pour 
-              maîtriser les enjeux de l'IA et lutter contre la désinformation.
+            <p className="mt-4 text-lg text-slate-400 leading-relaxed">
+              SumSum te guide dans un hub de jeux pour maîtriser les enjeux de l'IA et lutter contre la désinformation.
             </p>
-          </motion.div>
-
-          {/* Bento Grid layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card 1: Register */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="group relative flex flex-col h-full rounded-[2.5rem] bg-white/[0.03] border border-white/10 p-8 backdrop-blur-3xl transition-all duration-500 hover:bg-white/[0.05] hover:border-cyan-500/30 hover:shadow-[0_0_50px_rgba(6,182,212,0.1)]"
-            >
-              <div className="flex-1 space-y-8 relative z-10 flex flex-col">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-sky-500/5 border border-cyan-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                  <UserPlus className="w-10 h-10 text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]" />
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-3xl font-black text-white tracking-wide">Identity Check</h3>
-                  <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                    Initialisez votre profil voyageur. Enregistrez votre progression et accumulez des points d'expertise IA.
-                  </p>
-                </div>
-              </div>
-              <Link to="/register" className="inline-flex items-center w-fit text-sm font-black text-cyan-400 group-hover:text-cyan-300 transition-colors uppercase tracking-[0.2em] gap-4 mt-auto mb-0 bg-white/5 py-4 px-8 rounded-2xl border border-white/5 group-hover:border-cyan-500/20">
-                Register <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
-              </Link>
-            </motion.div>
-
-            {/* Card 2: Login */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="group relative flex flex-col h-full rounded-[2.5rem] bg-white/[0.03] border border-white/10 p-8 backdrop-blur-3xl transition-all duration-500 hover:bg-white/[0.05] hover:border-emerald-500/30 hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]"
-            >
-              <div className="flex-1 space-y-8 relative z-10 flex flex-col">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/5 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                  <LogIn className="w-10 h-10 text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.6)]" />
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-3xl font-black text-white tracking-wide">Auth Portal</h3>
-                  <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                    Accédez à votre tableau de bord. Retrouvez vos succès et préparez-vous pour votre prochaine session.
-                  </p>
-                </div>
-              </div>
-              <Link to="/login" className="inline-flex items-center w-fit text-sm font-black text-emerald-400 group-hover:text-emerald-300 transition-colors uppercase tracking-[0.2em] gap-4 mt-auto mb-0 bg-white/5 py-4 px-8 rounded-2xl border border-white/5 group-hover:border-emerald-500/20">
-                Login <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
-              </Link>
-            </motion.div>
-
-            {/* Card 3: Hub */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="group relative flex flex-col h-full rounded-[2.5rem] bg-gradient-to-br from-yellow-500/5 to-orange-500/5 border border-white/10 p-8 backdrop-blur-3xl transition-all duration-500 hover:bg-white/[0.05] hover:border-yellow-500/30 hover:shadow-[0_0_50px_rgba(250,204,21,0.1)] md:col-span-2 lg:col-span-1"
-            >
-              <div className="flex-1 space-y-8 relative z-10 flex flex-col">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-yellow-500/20 to-orange-500/5 border border-yellow-500/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                  <Gamepad2 className="w-10 h-10 text-yellow-500 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]" />
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-3xl font-black text-white tracking-wide">Mission Control</h3>
-                  <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                    Le hub 3D est votre centre de commande. Choisissez une zone et warp vers votre prochain défi.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="inline-flex items-center w-fit text-sm font-black text-yellow-500 group-hover:text-yellow-400 transition-colors uppercase tracking-[0.2em] gap-4 mt-auto mb-0 bg-white/5 py-4 px-8 rounded-2xl border border-white/5 group-hover:border-yellow-500/20"
-              >
-                Go Hub <Rocket className="w-5 h-5 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-300" />
-              </button>
-            </motion.div>
           </div>
 
-          {/* Stats / Numbers Section for weight */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 pt-12 pb-24 border-t border-white/5">
-            {[
-              { label: "Utilisateurs", val: "2.4k+" },
-              { label: "Points Distribués", val: "850k" },
-              { label: "Zones de Jeux", val: "4" },
-              { label: "IA Analysées", val: "100%" },
-            ].map((stat, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center space-y-2"
-              >
-                <div className="text-3xl md:text-5xl font-black text-white">{stat.val}</div>
-                <div className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">{stat.label}</div>
-              </motion.div>
-            ))}
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <UserPlus className="w-6 h-6 text-cyan-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Compte & progression</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Crée un compte, gère tes points et avance dans les différents modes de jeu.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 transition-all"
+                >
+                  Créer
+                </Link>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold hover:bg-white/10 transition-all"
+                >
+                  Connexion
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <LogIn className="w-6 h-6 text-emerald-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Profil</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Consulte ton solde, ton historique et ajuste tes informations à tout moment.
+              </p>
+              <div className="pt-2">
+                <Link
+                  to="/profile"
+                  className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold hover:bg-white/10 transition-all"
+                >
+                  Ouvrir mon profil
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4 md:col-span-1">
+              <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
+                <Gamepad2 className="w-6 h-6 text-yellow-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Hub 3D</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Choisis une zone et lance ton prochain défi directement depuis le hub.
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 transition-all"
+                >
+                  Aller au hub <Rocket className="w-5 h-5 ml-2" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1076,17 +1019,25 @@ function Home() {
   );
 }
 
-// --- Game Page Placeholder ---
 function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Jeu 1 = Info ou Intox (Swiper)
+  if (id === "1") {
+    return <SwiperGame />;
+  }
+  if (id === "3") {
+    return <QuizGame />;
+  }
+
   return (
-    <div className="w-full h-screen bg-black flex flex-col items-center justify-center text-white font-sans">
+      <div className="w-full min-h-[calc(100vh-4rem)] bg-black flex flex-col items-center justify-center text-white font-sans">
       <h1 className="text-6xl font-black uppercase tracking-widest text-[#00ffcc] mb-8 drop-shadow-[0_0_20px_rgba(0,255,204,0.5)]">
         Jeu {id}
       </h1>
       <p className="text-xl text-gray-400 mb-12">Zone de jeu en cours de développement...</p>
-      <button 
+      <button
         className="px-8 py-4 rounded-full border-2 border-[#00ffcc] text-[#00ffcc] font-bold uppercase tracking-widest hover:bg-[#00ffcc] hover:text-black transition-all flex items-center gap-3"
         onClick={() => navigate("/")}
       >
@@ -1132,7 +1083,7 @@ function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10 overflow-hidden">
+    <div className="relative min-h-[calc(100vh-4rem)] bg-slate-950 flex items-center justify-center px-4 py-10 overflow-hidden">
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
       
@@ -1232,7 +1183,7 @@ function RegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10 overflow-hidden">
+    <div className="relative min-h-[calc(100vh-4rem)] bg-slate-950 flex items-center justify-center px-4 py-10 overflow-hidden">
       <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none" />
 
@@ -1314,7 +1265,7 @@ function ProfilePage() {
   const user = auth.user;
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-slate-100 overflow-hidden pb-32">
+    <div className="relative min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-100 overflow-hidden pb-32">
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-sky-500/10 rounded-full blur-[150px] pointer-events-none" />
       <div className="relative max-w-6xl mx-auto px-6 py-16 space-y-12">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
@@ -1352,8 +1303,8 @@ function Navbar() {
   const auth = useAuth();
 
   return (
-    <header className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-4xl rounded-full border border-white/10 bg-slate-900/80 backdrop-blur-2xl shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
-      <div className="px-6 sm:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="fixed top-0 left-0 right-0 z-[100] border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
+      <div className="mx-auto px-4 sm:px-6 h-16 max-w-7xl flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-sky-400 to-emerald-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform" />
           <div className="hidden sm:flex flex-col leading-tight">
@@ -1362,7 +1313,7 @@ function Navbar() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4 sm:gap-8 text-xs font-bold uppercase tracking-[0.15em] text-slate-300">
+        <nav className="flex items-center gap-5 text-sm font-semibold text-slate-200">
           <Link to="/" className="hover:text-cyan-300">
             Accueil
           </Link>
@@ -1378,16 +1329,16 @@ function Navbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-3">
           {auth.user ? (
             <>
-              <span className="hidden md:inline text-slate-300 font-medium">
-                Salut, <span className="font-bold text-white">{auth.user.prenom}</span>
+              <span className="hidden md:inline text-slate-200 font-medium">
+                Bonjour, <span className="font-bold text-white">{auth.user.prenom}</span>
               </span>
               <button
                 type="button"
                 onClick={auth.logout}
-                className="px-4 py-2 rounded-full bg-slate-800/80 text-white font-semibold hover:bg-slate-700 transition-colors border border-slate-600"
+                className="px-4 py-2 rounded-xl bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors border border-white/10"
               >
                 Déconnexion
               </button>
@@ -1396,13 +1347,13 @@ function Navbar() {
             <>
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-full border border-slate-600 text-slate-200 hover:bg-slate-800 font-semibold transition-colors"
+                className="px-4 py-2 rounded-xl border border-white/10 text-slate-200 hover:bg-white/5 font-semibold transition-colors bg-white/0"
               >
                 Connexion
               </Link>
               <Link
                 to="/register"
-                className="hidden sm:inline px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all"
+                className="hidden sm:inline px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all"
               >
                 Inscription
               </Link>
@@ -1416,10 +1367,12 @@ function Navbar() {
 
 function Footer() {
   return (
-    <footer className="w-full border-t border-slate-800/50 bg-slate-950 pb-24 pt-6">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-        <span className="font-medium">© {new Date().getFullYear()} Novaia · Special Week</span>
-        <span className="text-slate-400">Projet pédagogique interactif.</span>
+    <footer className="w-full border-t border-white/10 bg-slate-950 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-slate-400">
+        <span className="font-semibold text-slate-200">
+          © {new Date().getFullYear()} Novaia · Special Week
+        </span>
+        <span>Projet pédagogique interactif.</span>
       </div>
     </footer>
   );
@@ -1428,13 +1381,12 @@ function Footer() {
 function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
-      <main className="flex-1">
+      <main className="flex-1 pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/game/:id" element={<Game />} />
         </Routes>
       </main>
       <Footer />
@@ -1448,7 +1400,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <MainLayout />
+        <Routes>
+          {/* Jeux en plein écran, sans navbar ni footer */}
+          <Route path="/game/:id" element={<Game />} />
+          {/* Reste du site avec layout classique */}
+          <Route path="/*" element={<MainLayout />} />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   );
