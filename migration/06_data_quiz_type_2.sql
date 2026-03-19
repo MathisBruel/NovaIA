@@ -2,7 +2,7 @@ USE specialweek;
 
 -- Vrai/Faux (type_question = 2)
 
-INSERT INTO Jeu_quizz (type_question, media_url, option_a, option_b, option_c, option_d, reponse_correcte, explication, points_accordes) VALUES
+INSERT INTO jeu_quizz (type_question, media_url, option_a, option_b, option_c, option_d, reponse_correcte, explication, points_accordes) VALUES
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, FALSE, 'Les images générées par IA peuvent avoir des défauts : mains bizarres, texte illisible, reflets étranges. Un bon observateur peut les détecter.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, TRUE, 'ChatGPT a été entraîné sur des milliards de textes et peut générer du contenu remarquablement réaliste.', 10),
 (2, NULL, 'Vrai', 'Faux', NULL, NULL, TRUE, 'Les deepfakes peuvent être utilisés pour créer de fausses vidéos de politiques, de célébrités ou de n''importe qui.', 10),

@@ -11,14 +11,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Jeu_quizz")
+@Table(name = "jeu_quizz")
 public class JeuQuizz {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_question", nullable = false)
     private TypeQuestionQuizz typeQuestion;
 
