@@ -2,7 +2,7 @@ USE specialweek;
 
 -- Image (Réel vs IA) (type_question = 3)
 
-INSERT INTO Jeu_quizz (type_question, media_url, option_a, option_b, option_c, option_d, reponse_correcte, explication, points_accordes) VALUES
+INSERT INTO jeu_quizz (type_question, media_url, option_a, option_b, option_c, option_d, reponse_correcte, explication, points_accordes) VALUES
 (3, '/assets/img/quizz/AI/image_148.jpg', 'Réel', 'IA', NULL, NULL, TRUE, 'Cette image d''une personne âgée assise sur un banc avec des pigeons est une vraie photo prise par un photographe.', 10),
 (3, '/assets/img/quizz/AI/image_35.jpg', 'Réel', 'IA', NULL, NULL, FALSE, 'Cette image de Taylor Swift coiffée d''une couronne d''or futuriste avec des vêtements de science-fiction a été générée par une IA.', 10),
 (3, '/assets/img/quizz/AI/image_36.jpg', 'Réel', 'IA', NULL, NULL, FALSE, 'Un pape vêtu d''une doudoune Balenciaga rose – cette image surréaliste est un deepfake généré par IA.', 10),

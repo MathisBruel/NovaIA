@@ -2,7 +2,7 @@ USE specialweek;
 
 -- QCM (type_question = 1)
 
-INSERT INTO Jeu_quizz (type_question, media_url, option_a, option_b, option_c, option_d, reponse_correcte, explication, points_accordes) VALUES
+INSERT INTO jeu_quizz (type_question, media_url, option_a, option_b, option_c, option_d, reponse_correcte, explication, points_accordes) VALUES
 (1, NULL, 'Créer du contenu réaliste', 'Analyser des données scientifiques', 'Résoudre des équations complexes', 'Construire des robots physiques', TRUE, 'Les IA génératives comme ChatGPT et Dall-E sont conçues pour générer du contenu nouveau.', 10),
 (1, NULL, 'Elle enrichit toujours l''information', 'Elle peut créer des deepfakes convaincants', 'Elle supprime automatiquement les mensonges', 'Elle est toujours 100% fiable', FALSE, 'L''IA peut créer des vidéos et images très réalistes mais fausses, c''est un vrai danger pour la désinformation.', 10),
 (1, NULL, 'Une vidéo montrant la réalité altérée par IA', 'Un document papier falsifié', 'Une photographie ancienne', 'Un texte écrit à la main', TRUE, 'Un deepfake est une vidéo ou audio créé par IA qui imite quelqu''un de manière très réaliste.', 10),
