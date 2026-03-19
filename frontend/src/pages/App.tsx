@@ -35,6 +35,102 @@ const FACE_CAMERA_ROT_Y = SHIP_BASE_ROTATION_Y + Math.PI; // orientation face à
 
 type SumSumMode = "intro" | "hub";
 
+type PlanetModelProps = {
+  objPath: string;
+  mtlPath: string;
+  texturePath?: string;
+  scale?: number;
+  selected?: boolean;
+  selectedScale?: number;
+  rotation?: [number, number, number];
+};
+
+function PlanetModel({
+  objPath,
+  mtlPath,
+  texturePath,
+  scale = 2.2,
+  selected = false,
+  selectedScale = 1.2,
+  rotation = [0, 0, 0],
+}: PlanetModelProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const baseScaleRef = useRef<number | null>(null);
+  const resourcePath = mtlPath.split("/").slice(0, -1).join("/") + "/";
+
+  const mtl = useLoader(MTLLoader, mtlPath, (loader) => {
+    loader.setResourcePath(resourcePath);
+  });
+
+  useEffect(() => {
+    if (mtl) {
+      mtl.preload();
+    }
+  }, [mtl]);
+
+  const obj = useLoader(OBJLoader, objPath, (loader) => {
+    if (mtl) {
+      loader.setMaterials(mtl);
+    }
+  });
+
+  const texture = useLoader(
+    THREE.TextureLoader,
+    texturePath ?? "",
+    (loader) => {
+      if (!texturePath) return;
+      loader.setPath("");
+    }
+  );
+
+  useEffect(() => {
+    if (!obj || !groupRef.current) return;
+    if (baseScaleRef.current === null) {
+      obj.scale.set(1, 1, 1);
+      const box = new THREE.Box3().setFromObject(obj);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      baseScaleRef.current = scale / maxDim;
+      obj.scale.set(baseScaleRef.current, baseScaleRef.current, baseScaleRef.current);
+    }
+
+    groupRef.current.rotation.set(rotation[0], rotation[1], rotation[2]);
+
+    obj.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.material.side = THREE.DoubleSide;
+        if (texturePath && texture) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((mat) => {
+              mat.map = texture;
+              mat.color.set(0xffffff);
+              mat.needsUpdate = true;
+            });
+          } else {
+            child.material.map = texture;
+            child.material.color.set(0xffffff);
+            child.material.needsUpdate = true;
+          }
+        }
+      }
+    });
+  }, [obj, rotation, scale, selected, selectedScale, texture, texturePath]);
+
+  useFrame((_, delta) => {
+    if (!obj || !baseScaleRef.current) return;
+    const targetScale = baseScaleRef.current * (selected ? selectedScale : 1);
+    const current = obj.scale.x;
+    const smooth = THREE.MathUtils.damp(current, targetScale, 6, delta);
+    obj.scale.set(smooth, smooth, smooth);
+  });
+
+  return (
+    <group ref={groupRef}>
+      <primitive object={obj} />
+    </group>
+  );
+}
+
 function SumSumModel({
   warpTriggered,
   targetRotation,
@@ -168,6 +264,14 @@ const ZONES = [
     color: "#fb7185",
     colorTheme: "from-[#fb7185]/40 via-transparent to-transparent",
     labelColor: "text-[#fb7185]",
+    gameName: "Swiper",
+    model: {
+      obj: "/assets/models/sumsum/Planet1/tripo_convert_7f47b88d-99c0-47e0-a024-6af3cfc5d753.obj",
+      mtl: "/assets/models/sumsum/Planet1/tripo_convert_7f47b88d-99c0-47e0-a024-6af3cfc5d753.mtl",
+      texture: "/assets/models/sumsum/Planet1/fantasyplanet1_basecolor.JPEG",
+      scale: 3.6,
+      rotation: [0.05, -0.37, 0],
+    },
   },
   {
     id: 2,
@@ -176,6 +280,14 @@ const ZONES = [
     color: "#38bdf8",
     colorTheme: "from-[#38bdf8]/40 via-transparent to-transparent",
     labelColor: "text-[#38bdf8]",
+    gameName: "Chasseur d'anomalie",
+    model: {
+      obj: "/assets/models/sumsum/Planet2/tripo_convert_aab8dc31-0285-4916-b25e-a66f1081688a.obj",
+      mtl: "/assets/models/sumsum/Planet2/tripo_convert_aab8dc31-0285-4916-b25e-a66f1081688a.mtl",
+      texture: "/assets/models/sumsum/Planet2/candyplanet2_basecolor.JPEG",
+      scale: 4.2,
+      rotation: [0.05, -0.9, 0],
+    },
   },
   {
     id: 3,
@@ -184,6 +296,14 @@ const ZONES = [
     color: "#4ade80",
     colorTheme: "from-[#4ade80]/40 via-transparent to-transparent",
     labelColor: "text-[#4ade80]",
+    gameName: "Quizz",
+    model: {
+      obj: "/assets/models/sumsum/Planet3/tripo_convert_6895aebe-7d4e-4964-9606-743e0ac53367.obj",
+      mtl: "/assets/models/sumsum/Planet3/tripo_convert_6895aebe-7d4e-4964-9606-743e0ac53367.mtl",
+      texture: "/assets/models/sumsum/Planet3/iceplanet3_basecolor.JPEG",
+      scale: 3.6,
+      rotation: [0.08, -2.29, 0],
+    },
   },
   {
     id: 4,
@@ -192,6 +312,14 @@ const ZONES = [
     color: "#facc15",
     colorTheme: "from-[#facc15]/40 via-transparent to-transparent",
     labelColor: "text-[#facc15]",
+    gameName: "Mythos IA",
+    model: {
+      obj: "/assets/models/sumsum/Planet4/tripo_convert_6dc46ed0-97ba-4bd8-bac2-733bad6f63c7.obj",
+      mtl: "/assets/models/sumsum/Planet4/tripo_convert_6dc46ed0-97ba-4bd8-bac2-733bad6f63c7.mtl",
+      texture: "/assets/models/sumsum/Planet4/stylizedplanet4_basecolor.JPEG",
+      scale: 2.85,
+      rotation: [0.18, -2.47, 0],
+    },
   },
 ];
 
@@ -205,35 +333,23 @@ function ZoneMarkers({ selectedZoneId }: { selectedZoneId: number }) {
 
         return (
           <group key={zone.id} position={[x, -1, z]}>
-            <mesh>
-              <cylinderGeometry args={[1.4, 1.4, 0.18, 32]} />
-              <meshStandardMaterial 
-                color={zone.color} 
-                emissive={zone.color} 
-                emissiveIntensity={isSelected ? 1.2 : 0.25}
-                transparent
-                opacity={0.9}
-              />
-            </mesh>
-            <mesh position={[0, 10, 0]}>
-              <cylinderGeometry args={[1.4, 1.4, 20, 32]} />
-              <meshBasicMaterial 
-                color={zone.color} 
-                transparent 
-                opacity={isSelected ? 0.3 : 0.05} 
-                blending={THREE.AdditiveBlending}
-                depthWrite={false}
-              />
-            </mesh>
-            <Html position={[0, 2.5, 0]} center>
+            <pointLight color={zone.color} intensity={isSelected ? 1.2 : 0.6} distance={12} />
+            <PlanetModel
+              objPath={zone.model.obj}
+              mtlPath={zone.model.mtl}
+              texturePath={zone.model.texture}
+              scale={zone.model.scale}
+              rotation={zone.model.rotation}
+              selected={isSelected}
+              selectedScale={1.25}
+            />
+            <Html position={[0, 2.8, 0]} center>
               <div
-                className={`transition-all duration-300 font-extrabold uppercase tracking-[0.18em] text-sm ${
-                  isSelected
-                    ? "scale-125 opacity-100 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
-                    : "scale-95 opacity-60"
-                } ${zone.labelColor} whitespace-nowrap`}
+                className={`text-center text-[10px] md:text-xs font-semibold uppercase tracking-[0.24em] transition-all duration-700 ${
+                  isSelected ? "scale-[1.06] text-white" : "scale-100 text-white/70"
+                } drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]`}
               >
-                {zone.name}
+                {zone.gameName}
               </div>
             </Html>
           </group>
@@ -737,7 +853,7 @@ function Home() {
                 <h1
                   className={`text-3xl font-extrabold uppercase tracking-[0.18em] ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
                 >
-                  {currentZone.name}
+                  {currentZone.gameName}
                 </h1>
               </div>
             </div>
