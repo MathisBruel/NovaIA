@@ -6,9 +6,10 @@ export default defineConfig({
   assetsInclude: ["**/*.JPEG", "**/*.obj", "**/*.mtl"],
   server: {
     port: 5173,
+    allowedHosts: ["novaia.mathisbruel.fr"],
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        target: (process.env.VITE_API_PROXY_TARGET || "").trim() || "http://backend:8080",
         changeOrigin: true
       }
     }
