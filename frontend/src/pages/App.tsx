@@ -9,6 +9,7 @@ import * as THREE from "three";
 import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
 import SwiperGame from "./SwiperGame";
 import QuizGame from "./QuizGame";
+import ChasseAnomaliesGame from "./ChasseAnomaliesGame";
 
 // --- Loader ---
 function Loader() {
@@ -1030,6 +1031,9 @@ function Game() {
   // Jeu 1 = Info ou Intox (Swiper)
   if (id === "1") {
     return <SwiperGame />;
+  }
+  if (id === "2") {
+    return <ChasseAnomaliesGame />;
   }
   if (id === "3") {
     return <QuizGame />;

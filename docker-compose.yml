@@ -1,12 +1,4 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: specialweek-backend
-    ports:
-      - "8080:8080"
-
   db:
     image: mysql:8.4
     container_name: specialweek-mysql
@@ -19,6 +11,23 @@ services:
       - "3306:3306"
     volumes:
       - ./migration:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "specialweek", "-pspecialweek"]
+      interval: 5s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: specialweek-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -33,4 +42,3 @@ services:
     depends_on:
       - backend
       - db
-
