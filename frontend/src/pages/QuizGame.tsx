@@ -100,7 +100,7 @@ async function loadQuestions(): Promise<PreparedQuestion[]> {
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
 const page: CSSProperties = {
-  height: "100vh",
+  height: "100dvh",
   overflow: "hidden",
   position: "relative",
   background: "linear-gradient(150deg, #1e0353 0%, #0b0b2e 55%, #05091f 100%)",

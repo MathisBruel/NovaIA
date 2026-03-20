@@ -470,6 +470,16 @@ export default function SpaceHub() {
     navigate(`/game/${ZONES[selectedZoneIndex].id}`);
   };
 
+  // On mobile, SumSumModel is not rendered so handleWarpComplete is never called.
+  // Navigate directly after a short visual delay.
+  useEffect(() => {
+    if (!warpTriggered || !isMobile) return;
+    const t = setTimeout(() => {
+      navigate(`/game/${ZONES[selectedZoneIndex].id}`);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [warpTriggered, isMobile, navigate, selectedZoneIndex]);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };

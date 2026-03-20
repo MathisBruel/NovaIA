@@ -67,12 +67,12 @@ type Phase = "loading" | "error" | "chatting" | "verdict" | "result";
 // ── Styles ─────────────────────────────────────────────────────────────────────
 
 const page: CSSProperties = {
-  minHeight: "100vh",
+  minHeight: "100dvh",
   background: "linear-gradient(150deg, #170a35 0%, #0d0d2b 55%, #050a1f 100%)",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  padding: "40px 16px 60px",
+  padding: "clamp(16px, 4vw, 40px) 16px 60px",
   fontFamily: "'Segoe UI', system-ui, sans-serif",
   position: "relative",
   overflow: "hidden",
@@ -255,7 +255,7 @@ export default function MythosIaGame() {
         <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(167,139,250,0.2)", borderRadius: "20px", overflow: "hidden", backdropFilter: "blur(12px)" }}>
 
           {/* Messages */}
-          <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "14px", maxHeight: "380px", overflowY: "auto" }}>
+          <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", maxHeight: "clamp(220px, 40vh, 380px)", overflowY: "auto" }}>
             {chat.map((msg, i) => (
               <div key={i} style={{ display: "flex", justifyContent: msg.sender === "ai" ? "flex-start" : "flex-end", alignItems: "flex-end", gap: "8px" }}>
                 {msg.sender === "ai" && (

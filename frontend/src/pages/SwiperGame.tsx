@@ -56,7 +56,7 @@ function SwipeCard({
       style={{ zIndex: isTop ? 10 : 1 }}
     >
       <motion.div
-        className={`relative w-[340px] sm:w-[380px] md:w-[420px] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-white/10 bg-slate-900/90 backdrop-blur-xl ${
+        className={`relative w-[90vw] max-w-[340px] sm:max-w-[380px] md:max-w-[420px] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-white/10 bg-slate-900/90 backdrop-blur-xl ${
           isTop ? "cursor-grab active:cursor-grabbing" : ""
         }`}
         style={isTop ? { x, rotate } : {}}
@@ -540,7 +540,7 @@ export default function SwiperGame() {
                   }}
                   transition={{ duration: 0.4, ease: "easeIn" }}
                 >
-                  <div className="relative w-[340px] sm:w-[380px] md:w-[420px] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-white/10 bg-slate-900/90">
+                  <div className="relative w-[90vw] max-w-[340px] sm:max-w-[380px] md:max-w-[420px] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-white/10 bg-slate-900/90">
                     <div className="relative p-6 sm:p-8">
                       <div className="relative w-full aspect-[4/5] flex items-center justify-center bg-slate-800/50 rounded-2xl shadow-inner border border-white/10 p-4 sm:p-6 overflow-hidden">
                         <img

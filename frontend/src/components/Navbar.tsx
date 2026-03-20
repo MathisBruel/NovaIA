@@ -64,7 +64,7 @@ export default function Navbar() {
         </Link>
 
         {/* ── Nav links (desktop) ── */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "4px", flex: 1, justifyContent: "center" }}
+        <nav style={{ alignItems: "center", gap: "4px", flex: 1, justifyContent: "center" }}
           className="hidden md:flex"
         >
           {NAV_LINKS.map((link) => (
@@ -101,7 +101,7 @@ export default function Navbar() {
         </nav>
 
         {/* ── Auth section (desktop) ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}
+        <div style={{ alignItems: "center", gap: "10px", flexShrink: 0 }}
           className="hidden md:flex"
         >
           {auth.user ? (
@@ -220,12 +220,11 @@ export default function Navbar() {
         </div>
 
         {/* ── Mobile: burger ── */}
+        <div className="md:hidden" style={{ flexShrink: 0 }}>
         <button
           type="button"
           onClick={() => setMenuOpen((o) => !o)}
-          className="flex md:hidden"
           style={{
-            flexShrink: 0,
             width: "36px",
             height: "36px",
             borderRadius: "10px",
@@ -245,6 +244,7 @@ export default function Navbar() {
           <span style={{ display: "block", width: "16px", height: "2px", background: menuOpen ? "#c871ff" : "rgba(255,255,255,0.7)", borderRadius: "2px", opacity: menuOpen ? 0 : 1, transition: "all 0.2s" }} />
           <span style={{ display: "block", width: "16px", height: "2px", background: menuOpen ? "#c871ff" : "rgba(255,255,255,0.7)", borderRadius: "2px", transform: menuOpen ? "rotate(-45deg) translate(0, -7px)" : "none", transition: "all 0.2s" }} />
         </button>
+        </div>
       </div>
 
       {/* ── Mobile menu ── */}
