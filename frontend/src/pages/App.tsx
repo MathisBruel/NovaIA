@@ -9,25 +9,55 @@ import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } fr
 import SwiperGame from "./SwiperGame";
 import QuizGame from "./QuizGame";
 import ChasseAnomaliesGame from "./ChasseAnomaliesGame";
+import MythosIaGame from "./MythosIaGame";
 
-// --- Loader ---
-function Loader() {
-  const { progress } = useProgress();
+// --- Full-page Loading Overlay ---
+function LoadingOverlay() {
+  const { active, progress } = useProgress();
+  const [hidden, setHidden] = useState(false);
+  const leaving = !active && progress >= 100;
+
+  useEffect(() => {
+    if (!active && progress >= 100) {
+      const t = setTimeout(() => setHidden(true), 800);
+      return () => clearTimeout(t);
+    }
+  }, [active, progress]);
+
+  if (hidden) return null;
+
   return (
-    <Html center>
-      <div className="flex flex-col items-center gap-4 text-white p-8 bg-black/80 rounded-xl backdrop-blur-md">
-        <div className="text-xl font-bold uppercase tracking-widest text-fuchsia-200">
-          Chargement SumSum
-        </div>
-        <div className="w-[300px] h-3 bg-slate-900/80 rounded-full overflow-hidden border border-white/10">
-          <div
-            className="h-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="text-sm text-gray-400 font-mono">{progress.toFixed(0)}%</div>
+    <div
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950 transition-opacity duration-700 ${
+        leaving ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}
+    >
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[130px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[130px]" />
       </div>
-    </Html>
+
+      <div className="relative flex flex-col items-center gap-8">
+        <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-fuchsia-400 via-violet-400 to-sky-400 shadow-[0_0_40px_rgba(168,85,247,0.5)] animate-pulse" />
+
+        <div className="text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-fuchsia-300 font-bold mb-1">Novaia</div>
+          <div className="text-3xl font-black text-white tracking-tight">Special Week</div>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 w-72">
+          <div className="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 transition-all duration-300 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="text-xs text-slate-500 uppercase tracking-widest font-mono">
+            {progress < 100 ? "Chargement du hub spatial..." : "Prêt au décollage"}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -743,13 +773,15 @@ function Home() {
   const [warpTriggered, setWarpTriggered] = useState(false);
   const [mode, setMode] = useState<SumSumMode>("intro");
   const [introReady, setIntroReady] = useState(false);
+  const { active, progress } = useProgress();
+  const sceneLoaded = !active && progress >= 100;
 
   useEffect(() => {
     if (mode !== "hub") return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (warpTriggered) return;
-      
+
       if (e.key === "ArrowLeft" || e.key === "q" || e.key === "Q" || e.key === "a" || e.key === "A") {
         setSelectedZoneIndex((prev) => Math.max(0, prev - 1));
       } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
@@ -763,11 +795,12 @@ function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [warpTriggered, mode]);
 
+  // Le bouton Start apparaît 2500ms après le chargement complet de la scène
   useEffect(() => {
-    if (mode !== "intro") return;
+    if (!sceneLoaded || mode !== "intro") return;
     const t = setTimeout(() => setIntroReady(true), 2500);
     return () => clearTimeout(t);
-  }, [mode]);
+  }, [sceneLoaded, mode]);
 
   const triggerWarp = () => {
     if (warpTriggered) return;
@@ -787,6 +820,7 @@ function Home() {
 
   return (
     <div className="w-full min-h-screen bg-slate-950 font-sans text-white flex flex-col">
+      <LoadingOverlay />
       {/* Hero 3D pleine hauteur */}
       <section className="relative w-full h-[80vh] md:h-screen overflow-hidden">
         <div
@@ -800,7 +834,7 @@ function Home() {
           }`}
         >
           <Canvas
-            camera={mode === "intro" ? { position: [0, 2, 10], fov: 55 } : { position: [0, 4, 12], fov: 50 }}
+            camera={{ position: [0, 2, 10], fov: 55 }}
           >
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1} />
@@ -815,7 +849,7 @@ function Home() {
             />
             <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
 
-            <Suspense fallback={<Loader />}>
+            <Suspense fallback={null}>
               <SumSumModel
                 warpTriggered={mode === "hub" ? warpTriggered : false}
                 targetRotation={mode === "hub" ? currentZone.angle : 0}
@@ -823,7 +857,10 @@ function Home() {
                 warpTarget={mode === "hub" ? currentZonePosition : undefined}
                 mode={mode}
               />
-              {mode === "hub" && <ZoneMarkers selectedZoneId={currentZone.id} />}
+              {/* Toujours chargé en arrière-plan, invisible en mode intro */}
+              <group visible={mode === "hub"}>
+                <ZoneMarkers selectedZoneId={currentZone.id} />
+              </group>
             </Suspense>
           </Canvas>
         </div>
@@ -844,91 +881,73 @@ function Home() {
 
         {mode === "hub" && (
           <>
-            {/* UI Top Info */}
+            {/* UI Top — badge destination */}
             <div
-              className={`absolute top-8 left-0 right-0 z-20 flex justify-center pointer-events-none transition-opacity duration-500 ${
+              className={`absolute top-6 left-0 right-0 z-20 flex justify-center pointer-events-none transition-opacity duration-500 ${
                 warpTriggered ? "opacity-0" : "opacity-100"
               }`}
             >
-              <div className="bg-black/30 backdrop-blur-xl px-8 sm:px-10 py-3.5 rounded-full border border-white/10 flex flex-col items-center shadow-[0_0_25px_rgba(15,23,42,0.9)] max-w-[92vw]">
-                <h2 className="text-[11px] uppercase tracking-[0.35em] text-slate-300 mb-1">Destination</h2>
-                <h1
-                  className={`text-2xl sm:text-3xl text-center font-extrabold uppercase tracking-[0.12em] sm:tracking-[0.14em] leading-tight break-words ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
-                >
+              <div className="bg-black/40 backdrop-blur-xl px-7 py-3 rounded-2xl border border-white/10 flex flex-col items-center shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mb-0.5">Destination</span>
+                <span className={`text-xl font-extrabold uppercase tracking-widest ${currentZone.labelColor}`}>
                   {currentZone.gameName}
-                </h1>
+                </span>
               </div>
             </div>
 
-            {/* UI Bottom Controls */}
+            {/* UI Bottom — navigation */}
             <div
-              className={`absolute bottom-0 pb-28 md:pb-32 left-0 right-0 z-30 flex justify-between items-end px-6 md:px-12 transition-opacity duration-500 ${
+              className={`absolute bottom-8 left-0 right-0 z-30 flex items-center justify-center gap-4 px-6 transition-opacity duration-500 ${
                 warpTriggered ? "opacity-0" : "opacity-100"
               }`}
             >
-              {/* Touch / Click Controls */}
-              <div className="flex gap-4 items-end">
-                <button
-                  className={`p-5 rounded-full bg-slate-900/60 backdrop-blur-md border border-white/20 transition-all text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${
-                    selectedZoneIndex === 0
-                      ? "opacity-30 cursor-not-allowed"
-                      : "hover:bg-white/15 hover:border-white/50 active:scale-95"
-                  }`}
-                  onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
-                  disabled={selectedZoneIndex === 0 || warpTriggered}
-                >
-                  <ArrowLeft size={32} />
-                </button>
+              <button
+                className={`p-4 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white transition-all ${
+                  selectedZoneIndex === 0
+                    ? "opacity-30 cursor-not-allowed"
+                    : "hover:bg-white/15 hover:border-white/40 active:scale-95"
+                }`}
+                onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
+                disabled={selectedZoneIndex === 0 || warpTriggered}
+              >
+                <ArrowLeft size={24} />
+              </button>
 
-                <button
-                  className={`p-5 rounded-full bg-slate-900/60 backdrop-blur-md border border-white/20 transition-all text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${
-                    selectedZoneIndex === ZONES.length - 1
-                      ? "opacity-30 cursor-not-allowed"
-                      : "hover:bg-white/15 hover:border-white/50 active:scale-95"
-                  }`}
-                  onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
-                  disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
-                >
-                  <ArrowRight size={32} />
-                </button>
+              <button
+                className="px-8 py-3.5 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 font-extrabold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-[0_8px_30px_rgba(168,85,247,0.45)] border border-white/30 flex items-center gap-2 text-sm"
+                onClick={triggerWarp}
+                disabled={warpTriggered}
+              >
+                Go <ArrowRight size={18} />
+              </button>
 
-                <button
-                  className="ml-6 px-10 py-5 h-[76px] rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 font-extrabold uppercase tracking-[0.25em] hover:brightness-110 active:scale-95 transition-all shadow-[0_12px_44px_rgba(168,85,247,0.45)] flex items-center gap-3 border border-white/40"
-                  onClick={triggerWarp}
-                  disabled={warpTriggered}
-                >
-                  Go <ArrowRight size={20} className="text-slate-950" />
-                </button>
+              <button
+                className={`p-4 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white transition-all ${
+                  selectedZoneIndex === ZONES.length - 1
+                    ? "opacity-30 cursor-not-allowed"
+                    : "hover:bg-white/15 hover:border-white/40 active:scale-95"
+                }`}
+                onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
+                disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
+              >
+                <ArrowRight size={24} />
+              </button>
+            </div>
+
+            {/* Keyboard hints — coin bas droit */}
+            <div
+              className={`absolute bottom-8 right-6 z-30 hidden md:flex flex-col items-end gap-2 opacity-50 pointer-events-none transition-opacity duration-500 ${
+                warpTriggered ? "opacity-0" : ""
+              }`}
+            >
+              <div className="flex items-center gap-2 text-xs text-white">
+                <span className="uppercase tracking-wider">Naviguer</span>
+                <kbd className="px-2 py-1 bg-black/60 border border-white/25 rounded text-xs font-mono">Q</kbd>
+                <kbd className="px-2 py-1 bg-black/60 border border-white/25 rounded text-xs font-mono">D</kbd>
               </div>
-
-              {/* Keyboard Hints */}
-              <div className="hidden md:flex flex-col items-end gap-3 opacity-60 pointer-events-none">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium uppercase tracking-wider text-white">Naviguer</span>
-                  <div className="flex gap-1">
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      Q
-                    </kbd>
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      D
-                    </kbd>
-                  </div>
-                  <span className="text-gray-400 mx-1">ou</span>
-                  <div className="flex gap-1">
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      <ArrowLeft size={20} />
-                    </kbd>
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      <ArrowRight size={20} />
-                    </kbd>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium uppercase tracking-wider text-white">Valider</span>
-                  <kbd className="px-4 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-sm uppercase shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                    Entrée
-                  </kbd>
-                </div>
+              <div className="flex items-center gap-2 text-xs text-white">
+                <span className="uppercase tracking-wider">Valider</span>
+                <kbd className="px-2 py-1 bg-black/60 border border-white/25 rounded text-xs font-mono">Entrée</kbd>
               </div>
             </div>
           </>
