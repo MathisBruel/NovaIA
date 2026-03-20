@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
 import SwiperGame from "./SwiperGame";
 import QuizGame from "./QuizGame";
+import ChasseAnomaliesGame from "./ChasseAnomaliesGame";
 
 // --- Loader ---
 function Loader() {
@@ -965,14 +966,21 @@ function Home() {
 function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
+  if (id === "4") {
+    return <MythosIaGame />;
+  }
 
   // Jeu 1 = Info ou Intox (Swiper)
   if (id === "1") {
     return <SwiperGame />;
   }
+  if (id === "2") {
+    return <ChasseAnomaliesGame />;
+  }
   if (id === "3") {
     return <QuizGame />;
   }
+      
 
   return (
       <div className="w-full min-h-[calc(100vh-4rem)] bg-black flex flex-col items-center justify-center text-white font-sans">
@@ -1330,6 +1338,7 @@ function MainLayout() {
       {showTopNav && <Navbar />}
       <main className="flex-1">
         <Routes>
+          <Route path="/game/4" element={<MythosIaGame />} />
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
