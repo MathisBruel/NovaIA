@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useRef, useEffect, useContext, createContext } from "react";
-import AiMockGame from "../components/AiMockGame";
+import MythosIaGame from "./MythosIaGame";
 import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, useProgress, Sky, Stars } from "@react-three/drei";
@@ -1025,7 +1025,7 @@ function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
   if (id === "4") {
-    return <AiMockGame />;
+    return <MythosIaGame />;
   }
 
   // Jeu 1 = Info ou Intox (Swiper)
@@ -1392,7 +1392,7 @@ function MainLayout() {
     <div className="min-h-screen flex flex-col bg-slate-950">
       <main className="flex-1 pt-16">
         <Routes>
-          <Route path="/game/4" element={<AiMockGame />} />
+          <Route path="/game/4" element={<MythosIaGame />} />
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
