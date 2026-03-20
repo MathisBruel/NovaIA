@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `profil` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `Jeu_quizz` (
+CREATE TABLE IF NOT EXISTS `jeu_quizz` (
 	`id` int AUTO_INCREMENT NOT NULL UNIQUE,
 	`type_question` int NOT NULL,
 	`media_url` varchar(255),
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `Jeu_quizz` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `Jeu_chasse_anomalies` (
+CREATE TABLE IF NOT EXISTS `jeu_chasse_anomalies` (
 	`id` int AUTO_INCREMENT NOT NULL UNIQUE,
 	`image_url` text NOT NULL,
 	`titre_image` varchar(255) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `Jeu_chasse_anomalies` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `Jeu_swiper` (
+CREATE TABLE IF NOT EXISTS `jeu_swiper` (
 	`id` int AUTO_INCREMENT NOT NULL UNIQUE,
 	`image_post_url` text NOT NULL,
 	`est_fiable` boolean NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `reponse_mytho` (
 );
 
 
-ALTER TABLE `Jeu_quizz` ADD CONSTRAINT `Jeu_quizz_fk1` FOREIGN KEY (`type_question`) REFERENCES `type_question_quizz`(`id`);
+ALTER TABLE `jeu_quizz` ADD CONSTRAINT `jeu_quizz_fk1` FOREIGN KEY (`type_question`) REFERENCES `type_question_quizz`(`id`);
 
 
 

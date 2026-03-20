@@ -1,5 +1,6 @@
 package fr.novaia.specialweek.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity for mytho answers.
+ */
 @Entity
 @Table(name = "reponse_mytho")
 public class ReponseMytho {
@@ -25,10 +29,12 @@ public class ReponseMytho {
 
     @OneToOne
     @JoinColumn(name = "question_answer_1", nullable = false)
+    @JsonIgnoreProperties({"reponses"})
     private QuestionMytho questionAnswer1;
 
     @OneToOne
     @JoinColumn(name = "question_answer_2", nullable = false)
+    @JsonIgnoreProperties({"reponses"})
     private QuestionMytho questionAnswer2;
 
     public Integer getId() {

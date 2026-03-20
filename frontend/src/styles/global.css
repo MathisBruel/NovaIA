@@ -25,9 +25,18 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1.2rem;
   background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
   z-index: 9999;
+}
+
+.initial-loader-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+  object-fit: contain;
+  box-shadow: 0 0 40px rgba(200, 113, 255, 0.55), 0 0 12px rgba(200, 113, 255, 0.3);
+  animation: logo-pulse 2s ease-in-out infinite;
 }
 
 .initial-loader-orbit {
@@ -74,5 +83,16 @@ body {
   }
   100% {
     transform: rotate(360deg) translateX(50px);
+  }
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(200, 113, 255, 0.55), 0 0 12px rgba(200, 113, 255, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(200, 113, 255, 0.8), 0 0 24px rgba(200, 113, 255, 0.5);
+    transform: scale(1.04);
   }
 }

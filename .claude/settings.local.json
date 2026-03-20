@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(npm run:*)",
+      "Bash(dir /s \"d:/Deva2/SiteWeb/SpecialWeek/frontend/src\")",
+      "Bash(node -e \":*)",
+      "Bash(grep -n \"phase.*end\\\\|Keyboard hints\\\\|keyboard\\\\|</div>\\\\s*$\\\\|footer\\\\|banner\\\\|bottom\" d:/Deva2/SiteWeb/SpecialWeek/frontend/src/pages/QuizGame.tsx)",
+      "Bash(npx tsc:*)",
+      "Bash(git -C d:/Deva2/SiteWeb/SpecialWeek log --oneline -1 -- frontend/src/pages/SpaceHub.tsx)",
+      "Bash(git -C d:/Deva2/SiteWeb/SpecialWeek status --short frontend/src/pages/SpaceHub.tsx)"
+    ]
+  }
+}

@@ -7,6 +7,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 
+/**
+ * JPA entity for quiz question types.
+ */
 @Entity
 @Table(name = "type_question_quizz")
 public class TypeQuestionQuizz {

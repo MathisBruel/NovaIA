@@ -5,6 +5,10 @@
 - `backend/` : API REST Spring Boot (Java 17, Gradle)
 - `frontend/` : application React (TypeScript, Vite)
 
+## Documentation
+
+- Documentation des migrations SQL : [doc/migrations.md](doc/migrations.md)
+
 ## Prérequis
 
 - Java 17+

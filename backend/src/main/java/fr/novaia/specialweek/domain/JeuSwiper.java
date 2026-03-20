@@ -8,8 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity for swiper games.
+ */
 @Entity
-@Table(name = "Jeu_swiper")
+@Table(name = "jeu_swiper")
 public class JeuSwiper {
 
     @Id
