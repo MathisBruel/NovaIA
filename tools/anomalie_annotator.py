@@ -31,6 +31,7 @@ DB_CONFIG = {
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 FRONTEND_PUBLIC = os.path.join(PROJECT_ROOT, "frontend", "public")
+MIGRATION_FILE = os.path.join(PROJECT_ROOT, "migration", "03_chasse_anomalies.sql")
 
 # ─── BDD ─────────────────────────────────────────────────────────────────────
 
@@ -62,6 +63,39 @@ def save_entry(entry_id, coords_json):
     conn.commit()
     cursor.close()
     conn.close()
+
+
+def _sql_escape(s):
+    """Escape single quotes for SQL string literals."""
+    return str(s).replace("'", "''")
+
+
+def save_to_migration(entries):
+    """Régénère 03_chasse_anomalies.sql à partir des entrées en mémoire."""
+    lines = [
+        "USE specialweek;",
+        "SET NAMES utf8mb4;",
+        "",
+        "INSERT INTO jeu_chasse_anomalies (image_url, titre_image, coordonnes_anomalie_json, explication, points_accordes) VALUES",
+    ]
+    rows = []
+    for entry in entries:
+        coords = entry.get("coordonnes_anomalie_json") or ""
+        if isinstance(coords, dict):
+            coords = json.dumps(coords, ensure_ascii=False)
+        rows.append(
+            "('{}', '{}', '{}', '{}', {})".format(
+                _sql_escape(entry["image_url"]),
+                _sql_escape(entry["titre_image"]),
+                _sql_escape(coords),
+                _sql_escape(entry["explication"]),
+                int(entry["points_accordes"]),
+            )
+        )
+    lines.append(",\n".join(rows) + ";")
+    lines.append("")
+    with open(MIGRATION_FILE, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
 
 # ─── Application ──────────────────────────────────────────────────────────────
@@ -407,8 +441,9 @@ class AnomalieAnnotator:
         try:
             save_entry(entry["id"], coords)
             self.entries[self.current_index]["coordonnes_anomalie_json"] = json.dumps(coords)
+            save_to_migration(self.entries)
             self.status_var.set(
-                f"Sauvegarde OK  —  ID {entry['id']}  |  {coords}"
+                f"Sauvegarde OK  —  ID {entry['id']}  |  migration mise à jour  |  {coords}"
             )
             self.btn_save.config(bg="#27ae60")
             self.root.after(1500, lambda: self.btn_save.config(bg="#2ecc71"))
