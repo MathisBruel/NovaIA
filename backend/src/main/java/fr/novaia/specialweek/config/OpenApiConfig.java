@@ -8,9 +8,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * OpenAPI and CORS configuration for the REST API.
+ */
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Defines the OpenAPI metadata for the service.
+     *
+     * @return OpenAPI definition
+     */
     @Bean
     public OpenAPI specialWeekApi() {
         return new OpenAPI()
@@ -21,6 +29,11 @@ public class OpenApiConfig {
                         .version("1.0.0"));
     }
 
+    /**
+     * Configures allowed origins, methods, and headers for CORS.
+     *
+     * @return MVC configurer for CORS
+     */
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

@@ -8,6 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity for anomaly hunt games.
+ */
 @Entity
 @Table(name = "jeu_chasse_anomalies")
 public class JeuChasseAnomalies {
