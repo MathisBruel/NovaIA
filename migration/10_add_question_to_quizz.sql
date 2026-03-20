@@ -1,4 +1,5 @@
 USE specialweek;
+SET NAMES utf8mb4;
 
 -- Ajout de la colonne question à jeu_quizz
 ALTER TABLE jeu_quizz ADD COLUMN question VARCHAR(500) NOT NULL DEFAULT '';
@@ -58,3 +59,50 @@ UPDATE jeu_quizz SET question = 'Comment vérifier une information partagée sur
 
 -- Suppression de la valeur par défaut
 ALTER TABLE jeu_quizz MODIFY COLUMN question VARCHAR(500) NOT NULL;
+
+-- ── Corrections reponse_correcte pour les QCM incohérents ────────────────────
+
+-- "Tweeter sans réfléchir" ne peut pas être la bonne réponse → B='Vérifier la source avant de partager'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Tweeter sans réfléchir';
+
+-- "L'absence d'Internet" n'est pas une bulle de filtre → A='Des bulles de filtre créées par les algorithmes'
+UPDATE jeu_quizz SET reponse_correcte = TRUE WHERE type_question = 1 AND option_a = 'Des bulles de filtre créées par les algorithmes';
+
+-- Question fake news : B='Une image créée par IA d''un événement fictif' → question plus précise
+UPDATE jeu_quizz SET question = 'Qu''est-ce qu''une fake news visuelle créée par IA ?' WHERE type_question = 1 AND option_a = 'Une image générée par IA qui montre un événement réel';
+
+-- "Partager un mème sans contexte" n'est pas la bonne pratique → B='Consulter plusieurs sources vérifiées'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Partager un mème sans contexte';
+
+-- "Partager une vidéo virale sans vérifier" n'est pas la bonne pratique → B='Chercher qui a créé la vidéo'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Partager une vidéo virale sans vérifier';
+
+-- A='L''IA générative et l''IA discriminante' ne décrit pas la différence → B='L''IA générative crée du contenu...'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'L''IA générative et l''IA discriminante';
+
+-- "En lisant une seule source" n'est pas fiable → B='En croisant plusieurs sources différentes et vérifiées'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'En lisant une seule source très détaillée';
+
+-- A='Une arnaque où on demande des données personnelles par email' EST la définition du phishing
+UPDATE jeu_quizz SET reponse_correcte = TRUE WHERE type_question = 1 AND option_a = 'Une arnaque où on demande des données personnelles par email';
+
+-- A='Elle analyse l''expression faciale' décrit le vrai fonctionnement de la détection de deepfakes
+UPDATE jeu_quizz SET reponse_correcte = TRUE WHERE type_question = 1 AND option_a = 'Elle analyse l''expression faciale et la comparaît avec une vidéo authentique';
+
+-- "Ignorer complètement Internet" n'est pas être numérique responsable → B='Utiliser Internet de manière critique'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Ignorer complètement Internet et les réseaux';
+
+-- La bonne réponse est C='N''importe qui peut être victime' → swap avec option_a et mettre TRUE
+UPDATE jeu_quizz SET option_a = 'N''importe qui peut être victime', option_c = 'Seulement les politiques', reponse_correcte = TRUE, question = 'Qui peut être ciblé par les deepfakes ?' WHERE type_question = 1 AND option_a = 'Seulement les politiques' AND option_c = 'N''importe qui peut être victime';
+
+-- "Partager sans vérifier le contexte" n'est pas la bonne pratique → B='Lire l''article complet'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Partager sans vérifier le contexte';
+
+-- A='Elle crée du texte très réaliste et cohérent' EST vrai pour ChatGPT + question adaptée
+UPDATE jeu_quizz SET reponse_correcte = TRUE, question = 'Quelle affirmation sur ChatGPT est vraie ?' WHERE type_question = 1 AND option_a = 'Elle crée du texte très réaliste et cohérent';
+
+-- "Partager tous les mèmes qu'on trouve drôles" n'est pas la bonne pratique → B='Vérifier le message'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Partager tous les mèmes qu''on trouve drôles';
+
+-- "Chercher le bouton vérifier la source" n'existe pas → B='Regarder le profil, vérifier la date, chercher la source'
+UPDATE jeu_quizz SET reponse_correcte = FALSE WHERE type_question = 1 AND option_a = 'Chercher le bouton "vérifier la source"';

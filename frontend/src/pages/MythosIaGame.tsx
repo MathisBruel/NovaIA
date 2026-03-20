@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../pages/App";
+import { useAuth } from "./App";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 
@@ -99,7 +99,7 @@ const glowOrb = (top: string, left: string, color: string): CSSProperties => ({
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export default function AiMockGame() {
+export default function MythosIaGame() {
   const auth = useAuth();
   const navigate = useNavigate();
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -224,13 +224,12 @@ export default function AiMockGame() {
 
   return (
     <div style={page}>
-      {/* Ambient glows */}
       <div style={glowOrb("-5%", "-5%", "#6d28d9")} />
       <div style={glowOrb("60%", "75%", "#0e7490")} />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
-        {/* ── Back button ── */}
+        {/* Back */}
         <button
           onClick={() => navigate("/")}
           style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "6px", background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", cursor: "pointer", fontSize: "0.85rem", padding: 0 }}
@@ -238,7 +237,7 @@ export default function AiMockGame() {
           ← Retour au hub
         </button>
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: "rgba(124,58,237,0.25)", border: "1px solid rgba(167,139,250,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", flexShrink: 0, boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
             🤖
@@ -255,7 +254,7 @@ export default function AiMockGame() {
           </div>
         </div>
 
-        {/* ── Chat window ── */}
+        {/* Chat window */}
         <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(167,139,250,0.2)", borderRadius: "20px", overflow: "hidden", backdropFilter: "blur(12px)" }}>
 
           {/* Messages */}
@@ -284,7 +283,7 @@ export default function AiMockGame() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* ── Divider + interaction zone ── */}
+          {/* Interaction zone */}
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", padding: "16px" }}>
 
             {/* Choices */}
@@ -340,7 +339,6 @@ export default function AiMockGame() {
             {/* Result */}
             {phase === "result" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                {/* Score banner */}
                 <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 18px", borderRadius: "14px", background: isCorrect ? "rgba(5,150,105,0.15)" : "rgba(220,38,38,0.15)", border: `1px solid ${isCorrect ? "rgba(52,211,153,0.35)" : "rgba(248,113,113,0.35)"}` }}>
                   <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: isCorrect ? "rgba(5,150,105,0.3)" : "rgba(220,38,38,0.3)", border: `2px solid ${isCorrect ? "rgba(52,211,153,0.6)" : "rgba(248,113,113,0.6)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", flexShrink: 0, boxShadow: `0 0 16px ${isCorrect ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)"}` }}>
                     {isCorrect ? "✓" : "✗"}
@@ -355,13 +353,11 @@ export default function AiMockGame() {
                   </div>
                 </div>
 
-                {/* Explanation */}
                 <div style={{ padding: "12px 16px", borderRadius: "12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", fontSize: "0.83rem", lineHeight: 1.6, color: "rgba(255,255,255,0.7)" }}>
                   <span style={{ color: "#fbbf24", fontWeight: 700 }}>💡 Explication : </span>
                   {scenario.explanation}
                 </div>
 
-                {/* Actions */}
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     onClick={nextScenario}
@@ -381,7 +377,7 @@ export default function AiMockGame() {
           </div>
         </div>
 
-        {/* ── Hint ── */}
+        {/* Hint */}
         {(phase === "chatting" || phase === "verdict") && (
           <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.75rem", textAlign: "center", margin: 0 }}>
             Lis attentivement les affirmations de l'IA — certaines peuvent être fausses.

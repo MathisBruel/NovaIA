@@ -14,5 +14,5 @@ COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dnetworkaddress.cache.negative.ttl=0", "-Dnetworkaddress.cache.ttl=30", "-jar", "app.jar"]
 
