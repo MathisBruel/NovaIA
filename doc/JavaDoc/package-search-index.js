@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"fr.novaia.specialweek"},{"l":"fr.novaia.specialweek.config"},{"l":"fr.novaia.specialweek.controller"},{"l":"fr.novaia.specialweek.domain"},{"l":"fr.novaia.specialweek.repository"},{"l":"fr.novaia.specialweek.service"}];updateSearchResults();

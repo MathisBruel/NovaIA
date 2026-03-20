@@ -10,6 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity for mytho questions.
+ */
 @Entity
 @Table(name = "question_mytho")
 public class QuestionMytho {

@@ -7,6 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity for user profiles.
+ */
 @Entity
 @Table(name = "profil")
 public class Profil {

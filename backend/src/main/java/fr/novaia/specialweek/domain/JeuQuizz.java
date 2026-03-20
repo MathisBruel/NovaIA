@@ -10,6 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity for quiz games.
+ */
 @Entity
 @Table(name = "jeu_quizz")
 public class JeuQuizz {
