@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, useMotionValue, useTransform, AnimatePresence, type PanInfo } from "framer-motion";
 import { ArrowLeft, CheckCircle, XCircle, Trophy, RotateCcw, ChevronLeft, ChevronRight, Sparkles, Shield, ShieldAlert } from "lucide-react";
+import { useAuth, API_BASE_URL } from "../contexts/AuthContext";
 
 // ─── Types ────────────────────────────────────────────────
 type SwiperPost = {
@@ -11,12 +12,6 @@ type SwiperPost = {
   explication: string;
   pointsAccordes: number;
 };
-
-const API_BASE_URL: string =
-  (import.meta as any).env?.VITE_API_BASE_URL &&
-  (import.meta as any).env.VITE_API_BASE_URL.length > 0
-    ? (import.meta as any).env.VITE_API_BASE_URL
-    : "";
 
 // ─── Shuffle helper ───────────────────────────────────────
 function shuffleArray<T>(arr: T[]): T[] {
@@ -315,6 +310,7 @@ function EndScreen({
 // ─── Main SwiperGame Component ────────────────────────────
 export default function SwiperGame() {
   const navigate = useNavigate();
+  const auth = useAuth();
   const [posts, setPosts] = useState<SwiperPost[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -326,6 +322,7 @@ export default function SwiperGame() {
   } | null>(null);
   const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null);
   const [gameOver, setGameOver] = useState(false);
+  const [pointsSynced, setPointsSynced] = useState(false);
 
   // Fetch posts
   const loadPosts = useCallback(async () => {
@@ -340,6 +337,7 @@ export default function SwiperGame() {
       setScore(0);
       setGameOver(false);
       setFeedback(null);
+      setPointsSynced(false);
     } catch (e: any) {
       setError(e.message ?? "Erreur inconnue");
     } finally {
@@ -350,6 +348,15 @@ export default function SwiperGame() {
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
+
+  // Sync points to backend when game ends
+  useEffect(() => {
+    if (!gameOver || pointsSynced || !auth.user?.id || score <= 0) return;
+    setPointsSynced(true);
+    fetch(`${API_BASE_URL}/api/accounts/${auth.user.id}/add-points?delta=${score}`, { method: "POST" })
+      .then(() => auth.updateUserPoints(score))
+      .catch(() => {});
+  }, [gameOver, pointsSynced, auth, score]);
 
   // Handle swipe
   const handleSwipe = useCallback(
@@ -613,6 +620,16 @@ export default function SwiperGame() {
             </kbd>
             <span>Info</span>
           </div>
+        </div>
+      )}
+
+      {/* Login banner */}
+      {!gameOver && !auth.user && (
+        <div className="relative z-30 flex items-center justify-center gap-3 px-4 py-2.5 border-t border-white/5 bg-slate-900/80 backdrop-blur-sm text-xs text-slate-400">
+          <span>🔓 Connecte-toi pour sauvegarder tes points</span>
+          <Link to="/login" className="font-bold text-cyan-400 hover:text-cyan-300 transition-colors">Connexion</Link>
+          <span className="text-slate-600">·</span>
+          <Link to="/register" className="font-bold text-emerald-400 hover:text-emerald-300 transition-colors">Inscription</Link>
         </div>
       )}
 

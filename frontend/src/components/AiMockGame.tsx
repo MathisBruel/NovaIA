@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../pages/App";
+import { useAuth } from "../contexts/AuthContext";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 

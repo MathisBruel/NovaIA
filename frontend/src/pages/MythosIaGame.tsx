@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState, CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "./App";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth, API_BASE_URL } from "../contexts/AuthContext";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
-
-const API_BASE_URL: string =
-  (import.meta as any).env?.VITE_API_BASE_URL?.length > 0
-    ? (import.meta as any).env.VITE_API_BASE_URL
-    : "";
 
 const POINTS_PER_CORRECT = 15;
 
@@ -174,7 +169,9 @@ export default function MythosIaGame() {
     setIsCorrect(correct);
     setPhase("result");
     if (correct && auth.user?.id) {
-      fetch(`${API_BASE_URL}/api/accounts/${auth.user.id}/add-points?delta=${POINTS_PER_CORRECT}`, { method: "POST" }).catch(() => {});
+      fetch(`${API_BASE_URL}/api/accounts/${auth.user.id}/add-points?delta=${POINTS_PER_CORRECT}`, { method: "POST" })
+        .then(() => auth.updateUserPoints(POINTS_PER_CORRECT))
+        .catch(() => {});
     }
   };
 
@@ -382,6 +379,16 @@ export default function MythosIaGame() {
           <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.75rem", textAlign: "center", margin: 0 }}>
             Lis attentivement les affirmations de l'IA — certaines peuvent être fausses.
           </p>
+        )}
+
+        {/* Login banner */}
+        {phase !== "result" && !auth.user && (
+          <div className="flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl border border-white/5 bg-white/[0.02] text-xs text-slate-400">
+            <span>🔓 Connecte-toi pour sauvegarder tes points</span>
+            <Link to="/login" className="font-bold text-cyan-400 hover:text-cyan-300 transition-colors">Connexion</Link>
+            <span className="text-slate-600">·</span>
+            <Link to="/register" className="font-bold text-emerald-400 hover:text-emerald-300 transition-colors">Inscription</Link>
+          </div>
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Trophy, Star, RotateCcw } from "lucide-react";
-import { useAuth } from "./App";
+import { useAuth, API_BASE_URL } from "../contexts/AuthContext";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type TypeQuestionQuizzDto = { id: number; name: string };
@@ -30,10 +30,6 @@ const TIMER_S  = 20;
 const TILE_BG   = ["#e21b3c", "#1368ce", "#d89e00", "#26890c"];
 const TILE_FG   = ["#fff",    "#fff",    "#1e293b", "#fff"   ];
 const SHAPES    = ["▲",       "◆",       "●",       "■"      ];
-
-const API_BASE_URL: string =
-  (import.meta as any).env?.VITE_API_BASE_URL?.length > 0
-    ? (import.meta as any).env.VITE_API_BASE_URL : "";
 
 const BADGE_META: Record<number, { label: string; bg: string }> = {
   1: { label: "QCM",        bg: "#7c3aed" },
@@ -152,7 +148,9 @@ export default function QuizGame() {
       const pts = q.original.pointsAccordes ?? 0;
       setScore(s => s + pts); setCorrectCount(c => c + 1);
       if (auth.user?.id && pts > 0)
-        fetch(`${API_BASE_URL}/api/accounts/${auth.user.id}/add-points?delta=${pts}`, { method: "POST" }).catch(() => {});
+        fetch(`${API_BASE_URL}/api/accounts/${auth.user.id}/add-points?delta=${pts}`, { method: "POST" })
+          .then(() => auth.updateUserPoints(pts))
+          .catch(() => {});
     }
   }, [phase, questions, idx, auth.user]);
 
@@ -442,6 +440,16 @@ export default function QuizGame() {
           >
             {idx >= questions.length - 1 ? "Voir les résultats →" : "Question suivante →"}
           </button>
+        </div>
+      )}
+
+      {/* Login banner */}
+      {!auth.user && (
+        <div className="flex items-center justify-center gap-3 px-4 py-2.5 border-t border-white/5 bg-slate-900/80 backdrop-blur-sm text-xs text-slate-400">
+          <span>🔓 Connecte-toi pour sauvegarder tes points</span>
+          <Link to="/login" className="font-bold text-cyan-400 hover:text-cyan-300 transition-colors">Connexion</Link>
+          <span className="text-slate-600">·</span>
+          <Link to="/register" className="font-bold text-emerald-400 hover:text-emerald-300 transition-colors">Inscription</Link>
         </div>
       )}
     </div>
