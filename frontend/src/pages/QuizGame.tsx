@@ -14,6 +14,7 @@ type JeuQuizzDto = {
   optionC?: string | null;
   optionD?: string | null;
   reponseCorrecte: boolean;
+  question: string;
   explication: string;
   pointsAccordes: number;
 };
@@ -166,6 +167,16 @@ export default function QuizGame() {
     loadQuestions().then(qs => { setQuestions(qs); setPhase("question"); }).catch(e => setError(e.message));
   }, []);
 
+  // ── Error ────────────────────────────────────────────────────────────────────
+  if (error) return (
+    <div style={{...page, alignItems:"center", justifyContent:"center", gap:"20px", padding:"24px"}}>
+      <p style={{color:"#fca5a5", fontSize:"1.1rem", margin:0, textAlign:"center"}}>{error}</p>
+      <button onClick={() => navigate("/")} style={{display:"flex", alignItems:"center", gap:"8px", padding:"12px 24px", borderRadius:"99px", border:"2px solid #06b6d4", background:"transparent", color:"#06b6d4", fontWeight:700, cursor:"pointer", fontSize:"1rem"}}>
+        <ArrowLeft size={18}/> Retour
+      </button>
+    </div>
+  );
+
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (phase === "loading") return (
     <div style={{...page, alignItems:"center", justifyContent:"center", gap:"24px"}}>
@@ -175,16 +186,6 @@ export default function QuizGame() {
       <div style={{width:"200px", height:"8px", background:"rgba(255,255,255,0.1)", borderRadius:"99px", overflow:"hidden"}}>
         <div style={{width:"50%", height:"100%", background:"linear-gradient(90deg,#06b6d4,#10b981)", borderRadius:"99px", animation:"pulse 1s infinite"}} />
       </div>
-    </div>
-  );
-
-  // ── Error ────────────────────────────────────────────────────────────────────
-  if (error) return (
-    <div style={{...page, alignItems:"center", justifyContent:"center", gap:"20px", padding:"24px"}}>
-      <p style={{color:"#fca5a5", fontSize:"1.1rem", margin:0, textAlign:"center"}}>{error}</p>
-      <button onClick={() => navigate("/")} style={{display:"flex", alignItems:"center", gap:"8px", padding:"12px 24px", borderRadius:"99px", border:"2px solid #06b6d4", background:"transparent", color:"#06b6d4", fontWeight:700, cursor:"pointer", fontSize:"1rem"}}>
-        <ArrowLeft size={18}/> Retour
-      </button>
     </div>
   );
 
@@ -236,7 +237,7 @@ export default function QuizGame() {
   // ── Question ─────────────────────────────────────────────────────────────────
   const q      = questions[idx];
   const badge  = BADGE_META[q.original.typeQuestion.id] ?? { label:"QUIZ", bg:"#475569" };
-  const prompt = PROMPT[q.original.typeQuestion.id] ?? "Choisissez une réponse";
+  const prompt = q.original.question || PROMPT[q.original.typeQuestion.id] || "Choisissez une réponse";
   const good   = selected !== null && selected === q.correctIndex;
   const two    = q.options.length === 2;
 
@@ -422,9 +423,11 @@ export default function QuizGame() {
             <p style={{color:"white", fontWeight:900, fontSize:"1rem", margin:"0 0 6px 0"}}>
               {timedOut ? "⏰ Temps écoulé !" : good ? `✅ Bonne réponse ! +${q.original.pointsAccordes} pts` : "❌ Mauvaise réponse"}
             </p>
-            <p style={{color:"rgba(203,213,225,0.85)", fontSize:"0.88rem", margin:0, lineHeight:1.6}}>
-              {q.original.explication}
-            </p>
+            {q.original.typeQuestion.id !== 3 && (
+              <p style={{color:"rgba(203,213,225,0.85)", fontSize:"0.88rem", margin:0, lineHeight:1.6}}>
+                {q.original.explication}
+              </p>
+            )}
           </div>
           <button
             onClick={next}

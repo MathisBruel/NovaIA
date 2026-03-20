@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useRef, useEffect, useContext, createContext } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Navigate, useLocation } from "react-router-dom";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, useProgress, Sky, Stars } from "@react-three/drei";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
@@ -7,25 +7,57 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import * as THREE from "three";
 import { ArrowLeft, ArrowRight, UserPlus, LogIn, Gamepad2, Sparkles, Rocket } from "lucide-react";
 import SwiperGame from "./SwiperGame";
+import QuizGame from "./QuizGame";
+import ChasseAnomaliesGame from "./ChasseAnomaliesGame";
+import MythosIaGame from "./MythosIaGame";
 
-// --- Loader ---
-function Loader() {
-  const { progress } = useProgress();
+// --- Full-page Loading Overlay ---
+function LoadingOverlay() {
+  const { active, progress } = useProgress();
+  const [hidden, setHidden] = useState(false);
+  const leaving = !active && progress >= 100;
+
+  useEffect(() => {
+    if (!active && progress >= 100) {
+      const t = setTimeout(() => setHidden(true), 800);
+      return () => clearTimeout(t);
+    }
+  }, [active, progress]);
+
+  if (hidden) return null;
+
   return (
-    <Html center>
-      <div className="flex flex-col items-center gap-4 text-white p-8 bg-black/80 rounded-xl backdrop-blur-md">
-        <div className="text-xl font-bold uppercase tracking-widest text-[#00ffcc]">
-          Chargement SumSum
-        </div>
-        <div className="w-[300px] h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-600">
-          <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-[#00ffcc] transition-all duration-300" 
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="text-sm text-gray-400 font-mono">{progress.toFixed(0)}%</div>
+    <div
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950 transition-opacity duration-700 ${
+        leaving ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}
+    >
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[130px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[130px]" />
       </div>
-    </Html>
+
+      <div className="relative flex flex-col items-center gap-8">
+        <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-fuchsia-400 via-violet-400 to-sky-400 shadow-[0_0_40px_rgba(168,85,247,0.5)] animate-pulse" />
+
+        <div className="text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-fuchsia-300 font-bold mb-1">Novaia</div>
+          <div className="text-3xl font-black text-white tracking-tight">Special Week</div>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 w-72">
+          <div className="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 transition-all duration-300 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="text-xs text-slate-500 uppercase tracking-widest font-mono">
+            {progress < 100 ? "Chargement du hub spatial..." : "Prêt au décollage"}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -741,13 +773,15 @@ function Home() {
   const [warpTriggered, setWarpTriggered] = useState(false);
   const [mode, setMode] = useState<SumSumMode>("intro");
   const [introReady, setIntroReady] = useState(false);
+  const { active, progress } = useProgress();
+  const sceneLoaded = !active && progress >= 100;
 
   useEffect(() => {
     if (mode !== "hub") return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (warpTriggered) return;
-      
+
       if (e.key === "ArrowLeft" || e.key === "q" || e.key === "Q" || e.key === "a" || e.key === "A") {
         setSelectedZoneIndex((prev) => Math.max(0, prev - 1));
       } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
@@ -761,11 +795,12 @@ function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [warpTriggered, mode]);
 
+  // Le bouton Start apparaît 2500ms après le chargement complet de la scène
   useEffect(() => {
-    if (mode !== "intro") return;
+    if (!sceneLoaded || mode !== "intro") return;
     const t = setTimeout(() => setIntroReady(true), 2500);
     return () => clearTimeout(t);
-  }, [mode]);
+  }, [sceneLoaded, mode]);
 
   const triggerWarp = () => {
     if (warpTriggered) return;
@@ -785,6 +820,7 @@ function Home() {
 
   return (
     <div className="w-full min-h-screen bg-slate-950 font-sans text-white flex flex-col">
+      <LoadingOverlay />
       {/* Hero 3D pleine hauteur */}
       <section className="relative w-full h-[80vh] md:h-screen overflow-hidden">
         <div
@@ -798,7 +834,7 @@ function Home() {
           }`}
         >
           <Canvas
-            camera={mode === "intro" ? { position: [0, 2, 10], fov: 55 } : { position: [0, 4, 12], fov: 50 }}
+            camera={{ position: [0, 2, 10], fov: 55 }}
           >
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1} />
@@ -813,7 +849,7 @@ function Home() {
             />
             <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
 
-            <Suspense fallback={<Loader />}>
+            <Suspense fallback={null}>
               <SumSumModel
                 warpTriggered={mode === "hub" ? warpTriggered : false}
                 targetRotation={mode === "hub" ? currentZone.angle : 0}
@@ -821,7 +857,10 @@ function Home() {
                 warpTarget={mode === "hub" ? currentZonePosition : undefined}
                 mode={mode}
               />
-              {mode === "hub" && <ZoneMarkers selectedZoneId={currentZone.id} />}
+              {/* Toujours chargé en arrière-plan, invisible en mode intro */}
+              <group visible={mode === "hub"}>
+                <ZoneMarkers selectedZoneId={currentZone.id} />
+              </group>
             </Suspense>
           </Canvas>
         </div>
@@ -829,7 +868,7 @@ function Home() {
         {mode === "intro" && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-end pb-16 pointer-events-none">
             <button
-              className={`pointer-events-auto px-12 py-4 rounded-full bg-gradient-to-r from-blue-500 to-[#00ffcc] text-black text-2xl font-black uppercase tracking-[0.25em] shadow-[0_0_30px_rgba(0,255,204,0.6)] border-4 border-white/60 transition-all ${
+              className={`pointer-events-auto px-12 py-4 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 text-2xl font-black uppercase tracking-[0.25em] shadow-[0_12px_44px_rgba(168,85,247,0.4)] border border-white/30 transition-all ${
                 introReady ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" : "opacity-0 translate-y-6"
               }`}
               disabled={!introReady}
@@ -842,175 +881,100 @@ function Home() {
 
         {mode === "hub" && (
           <>
-            {/* UI Top Info */}
+            {/* UI Top — badge destination */}
             <div
-              className={`absolute top-8 left-0 right-0 z-20 flex justify-center pointer-events-none transition-opacity duration-500 ${
+              className={`absolute top-6 left-0 right-0 z-20 flex justify-center pointer-events-none transition-opacity duration-500 ${
                 warpTriggered ? "opacity-0" : "opacity-100"
               }`}
             >
-              <div className="bg-black/30 backdrop-blur-xl px-8 py-3 rounded-full border border-white/10 flex flex-col items-center shadow-[0_0_25px_rgba(15,23,42,0.9)]">
-                <h2 className="text-[11px] uppercase tracking-[0.35em] text-slate-300 mb-1">Destination</h2>
-                <h1
-                  className={`text-3xl font-extrabold uppercase tracking-[0.18em] ${currentZone.labelColor} drop-shadow-[0_0_18px_rgba(255,255,255,0.4)]`}
-                >
+              <div className="bg-black/40 backdrop-blur-xl px-7 py-3 rounded-2xl border border-white/10 flex flex-col items-center shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mb-0.5">Destination</span>
+                <span className={`text-xl font-extrabold uppercase tracking-widest ${currentZone.labelColor}`}>
                   {currentZone.gameName}
-                </h1>
+                </span>
               </div>
             </div>
 
-            {/* UI Bottom Controls */}
+            {/* UI Bottom — navigation */}
             <div
-              className={`absolute bottom-0 pb-28 md:pb-32 left-0 right-0 z-30 flex justify-between items-end px-6 md:px-12 transition-opacity duration-500 ${
+              className={`absolute bottom-8 left-0 right-0 z-30 flex items-center justify-center gap-4 px-6 transition-opacity duration-500 ${
                 warpTriggered ? "opacity-0" : "opacity-100"
               }`}
             >
-              {/* Touch / Click Controls */}
-              <div className="flex gap-4 items-end">
-                <button
-                  className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
-                    selectedZoneIndex === 0
-                      ? "opacity-30 cursor-not-allowed"
-                      : "hover:bg-white/20 hover:border-white/50 active:scale-95"
-                  }`}
-                  onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
-                  disabled={selectedZoneIndex === 0 || warpTriggered}
-                >
-                  <ArrowLeft size={32} />
-                </button>
+              <button
+                className={`p-4 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white transition-all ${
+                  selectedZoneIndex === 0
+                    ? "opacity-30 cursor-not-allowed"
+                    : "hover:bg-white/15 hover:border-white/40 active:scale-95"
+                }`}
+                onClick={() => setSelectedZoneIndex((p) => Math.max(0, p - 1))}
+                disabled={selectedZoneIndex === 0 || warpTriggered}
+              >
+                <ArrowLeft size={24} />
+              </button>
 
-                <button
-                  className={`p-5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all text-white ${
-                    selectedZoneIndex === ZONES.length - 1
-                      ? "opacity-30 cursor-not-allowed"
-                      : "hover:bg-white/20 hover:border-white/50 active:scale-95"
-                  }`}
-                  onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
-                  disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
-                >
-                  <ArrowRight size={32} />
-                </button>
+              <button
+                className="px-8 py-3.5 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 font-extrabold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-[0_8px_30px_rgba(168,85,247,0.45)] border border-white/30 flex items-center gap-2 text-sm"
+                onClick={triggerWarp}
+                disabled={warpTriggered}
+              >
+                Go <ArrowRight size={18} />
+              </button>
 
-                <button
-                  className="ml-6 px-10 py-5 h-[76px] rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 text-slate-950 font-extrabold uppercase tracking-[0.25em] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_35px_rgba(56,189,248,0.8)] flex items-center gap-3 border border-white/40"
-                  onClick={triggerWarp}
-                  disabled={warpTriggered}
-                >
-                  Go <ArrowRight size={20} className="text-slate-950" />
-                </button>
+              <button
+                className={`p-4 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white transition-all ${
+                  selectedZoneIndex === ZONES.length - 1
+                    ? "opacity-30 cursor-not-allowed"
+                    : "hover:bg-white/15 hover:border-white/40 active:scale-95"
+                }`}
+                onClick={() => setSelectedZoneIndex((p) => Math.min(ZONES.length - 1, p + 1))}
+                disabled={selectedZoneIndex === ZONES.length - 1 || warpTriggered}
+              >
+                <ArrowRight size={24} />
+              </button>
+            </div>
+
+            {/* Keyboard hints — coin bas droit */}
+            <div
+              className={`absolute bottom-8 right-6 z-30 hidden md:flex flex-col items-end gap-2 opacity-50 pointer-events-none transition-opacity duration-500 ${
+                warpTriggered ? "opacity-0" : ""
+              }`}
+            >
+              <div className="flex items-center gap-2 text-xs text-white">
+                <span className="uppercase tracking-wider">Naviguer</span>
+                <kbd className="px-2 py-1 bg-black/60 border border-white/25 rounded text-xs font-mono">Q</kbd>
+                <kbd className="px-2 py-1 bg-black/60 border border-white/25 rounded text-xs font-mono">D</kbd>
               </div>
-
-              {/* Keyboard Hints */}
-              <div className="hidden md:flex flex-col items-end gap-3 opacity-60 pointer-events-none">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium uppercase tracking-wider text-white">Naviguer</span>
-                  <div className="flex gap-1">
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      Q
-                    </kbd>
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      D
-                    </kbd>
-                  </div>
-                  <span className="text-gray-400 mx-1">ou</span>
-                  <div className="flex gap-1">
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      <ArrowLeft size={20} />
-                    </kbd>
-                    <kbd className="w-10 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                      <ArrowRight size={20} />
-                    </kbd>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium uppercase tracking-wider text-white">Valider</span>
-                  <kbd className="px-4 h-10 flex items-center justify-center bg-black/60 border border-white/30 rounded-lg font-mono text-sm uppercase shadow-[0_2px_0_rgba(255,255,255,0.2)] text-white">
-                    Entrée
-                  </kbd>
-                </div>
+              <div className="flex items-center gap-2 text-xs text-white">
+                <span className="uppercase tracking-wider">Valider</span>
+                <kbd className="px-2 py-1 bg-black/60 border border-white/25 rounded text-xs font-mono">Entrée</kbd>
               </div>
             </div>
           </>
         )}
       </section>
 
+      {/* Navbar entre le hub 3D et le contenu informatif */}
+      <Navbar />
+
       {/* Section contenu classique sous le hero */}
-      <section className="relative w-full bg-slate-950 pt-20 pb-24 overflow-hidden border-t border-white/5">
+      <section className="relative w-full bg-gradient-to-br from-[#140626] via-[#1b0b3a] to-[#0f1026] pt-28 pb-32 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-cyan-500/10 blur-[100px] rounded-full" />
-          <div className="absolute -bottom-36 left-1/3 w-[900px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full" />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-fuchsia-500/15 blur-[110px] rounded-full" />
+          <div className="absolute -bottom-36 left-1/3 w-[900px] h-[600px] bg-indigo-500/15 blur-[130px] rounded-full" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6">
-          <div className="max-w-3xl">
-            <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight tracking-tight">
-              Propulser l'apprentissage <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-sky-400">vers de nouveaux horizons</span>.
+        <div className="relative max-w-[1200px] mx-auto px-12 sm:px-16 lg:px-24 2xl:px-32">
+          <div className="max-w-4xl">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+              Propulser l'apprentissage <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400">vers de nouveaux horizons</span>.
             </h2>
-            <p className="mt-4 text-lg text-slate-400 leading-relaxed">
+            <p className="mt-5 text-lg md:text-xl text-slate-300 leading-relaxed max-w-3xl break-words">
               SumSum te guide dans un hub de jeux pour maîtriser les enjeux de l'IA et lutter contre la désinformation.
             </p>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <UserPlus className="w-6 h-6 text-cyan-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Compte & progression</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Crée un compte, gère tes points et avance dans les différents modes de jeu.
-              </p>
-              <div className="flex gap-3 pt-2">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 transition-all"
-                >
-                  Créer
-                </Link>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold hover:bg-white/10 transition-all"
-                >
-                  Connexion
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <LogIn className="w-6 h-6 text-emerald-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Profil</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Consulte ton solde, ton historique et ajuste tes informations à tout moment.
-              </p>
-              <div className="pt-2">
-                <Link
-                  to="/profile"
-                  className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold hover:bg-white/10 transition-all"
-                >
-                  Ouvrir mon profil
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-7 space-y-4 md:col-span-1">
-              <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
-                <Gamepad2 className="w-6 h-6 text-yellow-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Hub 3D</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Choisis une zone et lance ton prochain défi directement depuis le hub.
-              </p>
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 transition-all"
-                >
-                  Aller au hub <Rocket className="w-5 h-5 ml-2" />
-                </button>
-              </div>
-            </div>
+            <p className="mt-3 text-base text-slate-400 leading-relaxed max-w-3xl break-words">
+              Apprends par l'action, progresse avec des points et developpe de vrais reflexes face aux contenus trompeurs.
+            </p>
           </div>
         </div>
       </section>
@@ -1021,14 +985,21 @@ function Home() {
 function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
+  if (id === "4") {
+    return <MythosIaGame />;
+  }
 
   // Jeu 1 = Info ou Intox (Swiper)
   if (id === "1") {
     return <SwiperGame />;
   }
+  if (id === "2") {
+    return <ChasseAnomaliesGame />;
+  }
   if (id === "3") {
     return <QuizGame />;
   }
+      
 
   return (
       <div className="w-full min-h-[calc(100vh-4rem)] bg-black flex flex-col items-center justify-center text-white font-sans">
@@ -1302,28 +1273,28 @@ function Navbar() {
   const auth = useAuth();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
-      <div className="mx-auto px-4 sm:px-6 h-16 max-w-7xl flex items-center justify-between gap-4">
+    <header className="w-full border-y border-white/10 bg-gradient-to-r from-[#140626]/90 via-[#2a0f52]/80 to-[#140626]/90 backdrop-blur-xl shadow-[0_12px_40px_rgba(7,5,20,0.55)] transition-all duration-500">
+      <div className="mx-auto px-12 sm:px-16 lg:px-24 2xl:px-32 h-16 max-w-[1400px] flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-sky-400 to-emerald-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform" />
+          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-fuchsia-400 via-violet-400 to-sky-400 shadow-[0_0_18px_rgba(168,85,247,0.6)] group-hover:scale-105 transition-transform" />
           <div className="hidden sm:flex flex-col leading-tight">
-            <span className="text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold">Novaia</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-fuchsia-300 font-bold">Novaia</span>
             <span className="text-sm font-bold text-white tracking-wide">Special Week</span>
           </div>
         </Link>
 
-        <nav className="flex items-center gap-5 text-sm font-semibold text-slate-200">
-          <Link to="/" className="hover:text-cyan-300">
+        <nav className="flex items-center gap-6 text-sm font-semibold text-slate-200">
+          <Link to="/" className="hover:text-fuchsia-200 transition-colors">
             Accueil
           </Link>
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="hover:text-cyan-300"
+            className="hover:text-fuchsia-200 transition-colors"
           >
             Hub 3D
           </button>
-          <Link to="/profile" className="hover:text-cyan-300">
+          <Link to="/profile" className="hover:text-fuchsia-200 transition-colors">
             Profil
           </Link>
         </nav>
@@ -1337,7 +1308,7 @@ function Navbar() {
               <button
                 type="button"
                 onClick={auth.logout}
-                className="px-4 py-2 rounded-xl bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors border border-white/10"
+                className="px-4 py-2 rounded-full bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors border border-white/15"
               >
                 Déconnexion
               </button>
@@ -1346,13 +1317,13 @@ function Navbar() {
             <>
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-xl border border-white/10 text-slate-200 hover:bg-white/5 font-semibold transition-colors bg-white/0"
+                className="px-4 py-2 rounded-full border border-white/15 text-slate-200 hover:bg-white/10 hover:border-white/30 font-semibold transition-colors bg-white/0"
               >
                 Connexion
               </Link>
               <Link
                 to="/register"
-                className="hidden sm:inline px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all"
+                className="hidden sm:inline px-4 py-2 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 text-slate-950 font-bold hover:brightness-110 shadow-[0_10px_30px_rgba(168,85,247,0.35)] transition-all"
               >
                 Inscription
               </Link>
@@ -1367,7 +1338,7 @@ function Navbar() {
 function Footer() {
   return (
     <footer className="w-full border-t border-white/10 bg-slate-950 py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-slate-400">
+      <div className="max-w-[1400px] mx-auto px-12 sm:px-16 lg:px-24 2xl:px-32 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-slate-400">
         <span className="font-semibold text-slate-200">
           © {new Date().getFullYear()} Novaia · Special Week
         </span>
@@ -1378,10 +1349,15 @@ function Footer() {
 }
 
 function MainLayout() {
+  const location = useLocation();
+  const showTopNav = location.pathname !== "/";
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
-      <main className="flex-1 pt-16">
+      {showTopNav && <Navbar />}
+      <main className="flex-1">
         <Routes>
+          <Route path="/game/4" element={<MythosIaGame />} />
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -1389,7 +1365,6 @@ function MainLayout() {
         </Routes>
       </main>
       <Footer />
-      <Navbar />
     </div>
   );
 }
