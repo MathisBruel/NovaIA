@@ -43,14 +43,16 @@ export default function Navbar() {
           to="/"
           style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", flexShrink: 0 }}
         >
-          <div
+          <img
+            src="/assets/img/logo_novaIA.png"
+            alt="Novaia"
             style={{
               width: "34px",
               height: "34px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #c871ff 0%, #a855f7 50%, #7c3aed 100%)",
-              boxShadow: "0 0 18px rgba(200,113,255,0.5)",
+              borderRadius: "8px",
+              objectFit: "contain",
               flexShrink: 0,
+              boxShadow: "0 0 14px rgba(200,113,255,0.45)",
             }}
           />
           <div style={{ lineHeight: 1.2 }}>

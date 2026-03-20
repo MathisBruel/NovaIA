@@ -34,7 +34,11 @@ function LoadingOverlay() {
       </div>
 
       <div className="relative flex flex-col items-center gap-8">
-        <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-fuchsia-400 via-violet-400 to-sky-400 shadow-[0_0_40px_rgba(168,85,247,0.5)] animate-pulse" />
+        <img
+          src="/assets/img/logo_novaIA.png"
+          alt="NovaIA"
+          className="h-20 w-20 rounded-2xl object-contain shadow-[0_0_48px_rgba(200,113,255,0.6)] animate-pulse"
+        />
 
         <div className="text-center">
           <div className="text-xs uppercase tracking-[0.4em] text-fuchsia-300 font-bold mb-1">Novaia</div>

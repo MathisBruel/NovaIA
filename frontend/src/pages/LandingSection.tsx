@@ -85,11 +85,16 @@ export default function LandingSection() {
               </div>
             </div>
 
-            {/* Right: decorative glow orb */}
+            {/* Right: decorative glow orb with logo */}
             <div style={{ flex: "0 0 340px", height: "340px", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <div style={{ width: "260px", height: "260px", borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, rgba(200,113,255,0.35) 0%, rgba(124,58,237,0.2) 45%, transparent 70%)", boxShadow: "0 0 80px rgba(200,113,255,0.25), inset 0 0 60px rgba(200,113,255,0.1)", border: "1px solid rgba(200,113,255,0.2)" }} />
               <div style={{ position: "absolute", width: "200px", height: "200px", borderRadius: "50%", border: "1px dashed rgba(200,113,255,0.15)", animation: "spin 18s linear infinite" }} />
               <div style={{ position: "absolute", width: "300px", height: "300px", borderRadius: "50%", border: "1px dashed rgba(200,113,255,0.08)", animation: "spin 28s linear infinite reverse" }} />
+              <img
+                src="/assets/img/logo_novaIA.png"
+                alt="Novaia"
+                style={{ position: "absolute", width: "110px", height: "110px", borderRadius: "24px", objectFit: "contain", boxShadow: "0 0 48px rgba(200,113,255,0.5), 0 8px 32px rgba(0,0,0,0.4)" }}
+              />
               <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
             </div>
           </div>

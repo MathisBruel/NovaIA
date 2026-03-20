@@ -41,14 +41,16 @@ export default function Footer() {
           {/* Brand */}
           <div style={{ maxWidth: "280px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-              <div
+              <img
+                src="/assets/img/logo_novaIA.png"
+                alt="Novaia"
                 style={{
                   width: "32px",
                   height: "32px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #c871ff, #a855f7)",
-                  boxShadow: "0 0 14px rgba(200,113,255,0.4)",
+                  borderRadius: "8px",
+                  objectFit: "contain",
                   flexShrink: 0,
+                  boxShadow: "0 0 12px rgba(200,113,255,0.4)",
                 }}
               />
               <div>
