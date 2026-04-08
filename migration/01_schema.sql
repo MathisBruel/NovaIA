@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS `profil` (
 	`mail` varchar(100) NOT NULL,
 	`mdp` varchar(50) NOT NULL,
 	`points` int NOT NULL,
+	`is_admin` boolean NOT NULL DEFAULT 0,
+	`is_certified` boolean NOT NULL DEFAULT 0,
 	PRIMARY KEY (`id`)
 );
 
@@ -75,4 +77,17 @@ ALTER TABLE `question_mytho` ADD CONSTRAINT `question_mytho_fk1` FOREIGN KEY (`i
 ALTER TABLE `reponse_mytho` ADD CONSTRAINT `reponse_mytho_fk3` FOREIGN KEY (`question_answer_1`) REFERENCES `question_mytho`(`id`);
 
 ALTER TABLE `reponse_mytho` ADD CONSTRAINT `reponse_mytho_fk4` FOREIGN KEY (`question_answer_2`) REFERENCES `question_mytho`(`id`);
+
+CREATE TABLE IF NOT EXISTS `user_activity` (
+	`id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`user_id` int NOT NULL,
+	`game_id` int NOT NULL,
+	`started_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`completed` boolean NOT NULL DEFAULT 0,
+	`step_reached` int NOT NULL DEFAULT 0,
+	`points_earned` int NOT NULL DEFAULT 0,
+	PRIMARY KEY (`id`)
+);
+
+ALTER TABLE `user_activity` ADD CONSTRAINT `user_activity_fk1` FOREIGN KEY (`user_id`) REFERENCES `profil`(`id`) ON DELETE CASCADE;
 

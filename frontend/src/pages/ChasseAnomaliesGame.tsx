@@ -64,6 +64,7 @@ export default function ChasseAnomaliesGame() {
   // click position stored in container-space pixels
   const [clickPx,      setClickPx]      = useState<{x:number;y:number}|null>(null);
   const [naturalSize,  setNaturalSize]  = useState({ w: 1200, h: 1440 });
+  const [activityId,   setActivityId]   = useState<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef       = useRef<HTMLImageElement>(null);
@@ -77,13 +78,22 @@ export default function ChasseAnomaliesGame() {
         if (!all.length) throw new Error("Aucune image disponible");
         setAnomalies(shuffle(all).slice(0, TOTAL));
         setIdx(0); setScore(0); setCorrectCount(0);
-        setClickPx(null); setHit(null); setTimedOut(false); setTimer(TIMER_S);
+        setClickPx(null); setHit(null); setTimedOut(false); setTimer(TIMER_S); setActivityId(null);
         setPhase("playing");
       })
       .catch(e => setError(e.message));
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (phase === "playing" && auth.user?.id && !activityId && anomalies.length > 0) {
+      fetch(`${API_BASE_URL}/api/activity/start?userId=${auth.user.id}&gameId=2`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => { if (data.id) setActivityId(data.id); })
+        .catch(console.error);
+    }
+  }, [phase, auth.user, activityId, anomalies.length]);
 
   // ── Timer ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -139,10 +149,15 @@ export default function ChasseAnomaliesGame() {
   }, [phase, anomalies, idx, naturalSize, auth.user]);
 
   const next = useCallback(() => {
-    if (idx >= anomalies.length - 1) { setPhase("end"); return; }
+    const isEnd = idx >= anomalies.length - 1;
+    if (activityId) {
+      fetch(`${API_BASE_URL}/api/activity/${activityId}/progress?stepReached=${idx + 1}&completed=${isEnd}&pointsEarned=${score}`, { method: "POST" }).catch(console.error);
+    }
+    
+    if (isEnd) { setPhase("end"); return; }
     setClickPx(null); setHit(null); setTimedOut(false); setTimer(TIMER_S);
     setIdx(i => i + 1); setPhase("playing");
-  }, [idx, anomalies.length]);
+  }, [idx, anomalies.length, activityId, score]);
 
   // ── Timer circle ──────────────────────────────────────────────────────────────
   const R    = 22;

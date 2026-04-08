@@ -10,6 +10,7 @@ import MythosIaGame from "./MythosIaGame";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 import ProfilePage from "./ProfilePage";
+import AdminPage from "./AdminPage";
 import { AuthProvider } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -66,6 +67,7 @@ function MainLayout() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
       {showTopNav && <Footer />}

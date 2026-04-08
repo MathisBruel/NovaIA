@@ -7,6 +7,8 @@ export type Profil = {
   mail: string;
   motDePasse: string;
   points: number;
+  admin?: boolean;
+  certified?: boolean;
 };
 
 export const API_BASE_URL: string =

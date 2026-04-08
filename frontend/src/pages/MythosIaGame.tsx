@@ -108,6 +108,7 @@ export default function MythosIaGame() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [seenHallucination, setSeenHallucination] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [activityId, setActivityId] = useState<number | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -137,6 +138,22 @@ export default function MythosIaGame() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
+
+  useEffect(() => {
+    if (phase !== "loading" && phase !== "error" && auth.user?.id && !activityId && qMap.size > 0) {
+      fetch(`${API_BASE_URL}/api/activity/start?userId=${auth.user.id}&gameId=4`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => { if (data.id) setActivityId(data.id); })
+        .catch(console.error);
+    }
+  }, [phase, auth.user, activityId, qMap.size]);
+
+  useEffect(() => {
+    if (activityId && phase !== "loading" && phase !== "error") {
+      const isEnd = phase === "result";
+      fetch(`${API_BASE_URL}/api/activity/${activityId}/progress?stepReached=${chat.length}&completed=${isEnd}&pointsEarned=${isCorrect ? POINTS_PER_CORRECT : 0}`, { method: "POST" }).catch(console.error);
+    }
+  }, [chat.length, phase, isCorrect, activityId]);
 
   const initScenario = (idx: number, qm: Map<number, QuestionDto>) => {
     const startId = SCENARIOS[idx].startId;
@@ -176,6 +193,7 @@ export default function MythosIaGame() {
   };
 
   const nextScenario = () => {
+    setActivityId(null); // Restart activity tracking for next scenario
     const nextIdx = (scenarioIdx + 1) % SCENARIOS.length;
     setScenarioIdx(nextIdx);
     initScenario(nextIdx, qMap);
