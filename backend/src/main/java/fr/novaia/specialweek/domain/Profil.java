@@ -80,5 +80,27 @@ public class Profil {
     public void setPoints(Integer points) {
         this.points = points;
     }
+
+    @Column(name = "is_admin", nullable = false)
+    private Boolean admin = false;
+
+    @Column(name = "is_certified", nullable = false)
+    private Boolean certified = false;
+
+    public Boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        this.admin = admin;
+    }
+
+    public Boolean isCertified() {
+        return certified;
+    }
+
+    public void setCertified(Boolean certified) {
+        this.certified = certified;
+    }
 }
 

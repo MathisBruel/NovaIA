@@ -124,10 +124,20 @@ export default function QuizGame() {
   const [score,        setScore]        = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [timer,        setTimer]        = useState(TIMER_S);
+  const [activityId,   setActivityId]   = useState<number | null>(null);
 
   useEffect(() => {
     loadQuestions().then(qs => { setQuestions(qs); setPhase("question"); }).catch(e => setError(e.message));
   }, []);
+
+  useEffect(() => {
+    if (phase === "question" && auth.user?.id && !activityId && questions.length > 0) {
+      fetch(`${API_BASE_URL}/api/activity/start?userId=${auth.user.id}&gameId=3`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => { if (data.id) setActivityId(data.id); })
+        .catch(console.error);
+    }
+  }, [phase, auth.user, activityId, questions.length]);
 
   useEffect(() => {
     if (phase !== "question") return;
@@ -155,12 +165,17 @@ export default function QuizGame() {
   }, [phase, questions, idx, auth.user]);
 
   const next = useCallback(() => {
-    if (idx >= questions.length - 1) { setPhase("end"); return; }
+    const isEnd = idx >= questions.length - 1;
+    if (activityId) {
+      fetch(`${API_BASE_URL}/api/activity/${activityId}/progress?stepReached=${idx + 1}&completed=${isEnd}&pointsEarned=${score}`, { method: "POST" }).catch(console.error);
+    }
+    
+    if (isEnd) { setPhase("end"); return; }
     setSelected(null); setTimedOut(false); setTimer(TIMER_S); setIdx(i => i + 1); setPhase("question");
-  }, [idx, questions.length]);
+  }, [idx, questions.length, activityId, score]);
 
   const replay = useCallback(() => {
-    setPhase("loading"); setIdx(0); setSelected(null);
+    setPhase("loading"); setIdx(0); setSelected(null); setActivityId(null);
     setScore(0); setCorrectCount(0); setTimedOut(false); setError(null);
     loadQuestions().then(qs => { setQuestions(qs); setPhase("question"); }).catch(e => setError(e.message));
   }, []);

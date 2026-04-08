@@ -390,6 +390,17 @@ export default function ProfilePage() {
                 🏆 Tous les paliers débloqués !
               </div>
             )}
+            
+            {user.admin && (
+              <div style={{ marginTop: "16px" }}>
+                <Link to="/admin" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderRadius: "999px", background: "rgba(255,100,100,0.15)", border: "1px solid rgba(255,100,100,0.4)", fontSize: "13px", fontWeight: 800, color: "#ff8888", textDecoration: "none", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,100,100,0.25)"; (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,100,100,0.15)"; (e.currentTarget as HTMLAnchorElement).style.transform = "none"; }}
+                >
+                  ⚙️ Tableau de Bord Admin
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Score badge */}

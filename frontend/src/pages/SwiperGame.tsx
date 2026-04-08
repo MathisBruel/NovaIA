@@ -323,6 +323,7 @@ export default function SwiperGame() {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [pointsSynced, setPointsSynced] = useState(false);
+  const [activityId, setActivityId] = useState<number | null>(null);
 
   // Fetch posts
   const loadPosts = useCallback(async () => {
@@ -338,6 +339,7 @@ export default function SwiperGame() {
       setGameOver(false);
       setFeedback(null);
       setPointsSynced(false);
+      setActivityId(null);
     } catch (e: any) {
       setError(e.message ?? "Erreur inconnue");
     } finally {
@@ -348,6 +350,18 @@ export default function SwiperGame() {
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
+
+  // Start tracking
+  useEffect(() => {
+    if (!loading && !error && auth.user?.id && !activityId && posts.length > 0) {
+      fetch(`${API_BASE_URL}/api/activity/start?userId=${auth.user.id}&gameId=1`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (data.id) setActivityId(data.id);
+        })
+        .catch(console.error);
+    }
+  }, [loading, error, auth.user, activityId, posts.length]);
 
   // Sync points to backend when game ends
   useEffect(() => {
@@ -387,12 +401,18 @@ export default function SwiperGame() {
     setFeedback(null);
     setExitDirection(null);
     const nextIndex = currentIndex + 1;
-    if (nextIndex >= posts.length) {
+    const isOver = nextIndex >= posts.length;
+    
+    if (activityId) {
+      fetch(`${API_BASE_URL}/api/activity/${activityId}/progress?stepReached=${nextIndex}&completed=${isOver}&pointsEarned=${score}`, { method: "POST" }).catch(console.error);
+    }
+    
+    if (isOver) {
       setGameOver(true);
     } else {
       setCurrentIndex(nextIndex);
     }
-  }, [currentIndex, posts.length]);
+  }, [currentIndex, posts.length, activityId, score]);
 
   // Keyboard controls
   useEffect(() => {

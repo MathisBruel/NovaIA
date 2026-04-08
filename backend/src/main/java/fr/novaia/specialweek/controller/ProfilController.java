@@ -112,5 +112,34 @@ public class ProfilController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/kpis")
+    @Operation(summary = "Récupérer les KPIs du projet (Statistiques globales)")
+    public ResponseEntity<java.util.Map<String, Object>> getKpis() {
+        List<Profil> profils = profilService.findAll();
+        
+        long totalUsers = profils.size();
+        long totalAdmins = profils.stream().filter(p -> p.isAdmin() != null && p.isAdmin()).count();
+        long totalCertified = profils.stream().filter(p -> p.isCertified() != null && p.isCertified()).count();
+        long totalPoints = profils.stream().mapToInt(Profil::getPoints).sum();
+        double avgPoints = totalUsers > 0 ? (double) totalPoints / totalUsers : 0;
+        double certificationRate = totalUsers > 0 ? (double) totalCertified / totalUsers * 100 : 0;
+        
+        List<Profil> topUsers = profils.stream()
+                .sorted((p1, p2) -> Integer.compare(p2.getPoints(), p1.getPoints()))
+                .limit(5)
+                .toList();
+                
+        java.util.Map<String, Object> kpis = new java.util.HashMap<>();
+        kpis.put("totalUsers", totalUsers);
+        kpis.put("totalAdmins", totalAdmins);
+        kpis.put("totalCertified", totalCertified);
+        kpis.put("totalPoints", totalPoints);
+        kpis.put("averagePoints", avgPoints);
+        kpis.put("certificationRate", certificationRate);
+        kpis.put("topUsers", topUsers);
+        
+        return ResponseEntity.ok(kpis);
+    }
 }
 
